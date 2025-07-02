@@ -8,7 +8,7 @@
 import Foundation
 import os
 
-public struct DefaultOSLoggerDestination: NexusLoggingDestination {
+public struct DefaultOSLoggerDestination: NexusDestination {
     private let logger: Logger
 
     public init(
@@ -18,9 +18,10 @@ public struct DefaultOSLoggerDestination: NexusLoggingDestination {
         self.logger = Logger(subsystem: subsystem, category: category)
     }
 
-    private func osLogType(for level: NexusLogLevel) -> OSLogType {
+    private func osLogType(for level: NexusEventType) -> OSLogType {
         switch level {
         case .debug:   return .debug
+        case .track:   return .info
         case .info:    return .info
         case .notice:  return .default
         case .warning: return .error
@@ -29,8 +30,8 @@ public struct DefaultOSLoggerDestination: NexusLoggingDestination {
         }
     }
 
-    public func log(
-        level: NexusLogLevel,
+    public func send(
+        level: NexusEventType,
         time: Date,
         bundleName: String,
         appVersion: String,

@@ -11,10 +11,15 @@ import Nexus
 @main
 struct NexusExampleApp: App {
     init() {
+        //        Nexus.addTrackingDestination(DefaultFirebaseDestination())
+        Nexus.addDestination(OSLoggerHumanReadable(), serialised: true)
         
-        
-        Nexus.addTrackingDestination(DefaultFirebaseDestination())
-        Nexus.addLoggingDestination(OSLoggerHumanReadable(), serialised: true)
+        Nexus.log("User Tapped Some Button!", .track)
+        Nexus.log("User tapped login button", .debug)
+        Nexus.log("User tapped login button", .info)
+        Nexus.log("User tapped login button", .notice)
+        Nexus.log("User tapped login button", .warning)
+        Nexus.log("User tapped login button", .error)
         
         
         Nexus.log("User tapped login button", .fault)
@@ -26,13 +31,6 @@ struct NexusExampleApp: App {
                 "text": "Login"
             ]
         )
-        
-        Nexus.track("User Tapped Some Button!")
-
-        Nexus.log("User tapped login button", .info, attributes: [
-            "source": "home_screen",
-            "method": "email"
-        ])
 
         Nexus.log("User tapped login button", .notice, attributes: [
             "userId": "12345",

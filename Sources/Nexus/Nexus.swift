@@ -12,63 +12,41 @@ import Foundation
 
 public actor Nexus {
     public static let shared = Nexus(
-        loggingStore: NexusLoggingDestinationStore.shared,
-        trackingStore: NexusTrackingDestinationStore.shared
+        eventStore: NexusDestinationStore.shared
     )
 
-    private let loggingStore: LoggingDestinationStore
-    private let trackingStore: TrackingDestinationStore
+    private let eventStore: NexusDestinationStore
 
     // Log stream
-    private let logStream: AsyncStream<NexusLoggingEvent>
-    private let logContinuation: AsyncStream<NexusLoggingEvent>.Continuation
-
-    // Tracking stream
-    private let trackStream: AsyncStream<NexusTrackingEvent>
-    private let trackContinuation: AsyncStream<NexusTrackingEvent>.Continuation
+    private let eventStream: AsyncStream<NexusEvent>
+    private let eventContinuation: AsyncStream<NexusEvent>.Continuation
 
     internal init(
-        loggingStore: LoggingDestinationStore,
-        trackingStore: TrackingDestinationStore
+        eventStore: NexusDestinationStore
     ) {
-        self.loggingStore = loggingStore
-        self.trackingStore = trackingStore
+        self.eventStore = eventStore
 
-        (logStream, logContinuation) = AsyncStream.makeStream()
-        (trackStream, trackContinuation) = AsyncStream.makeStream()
+        (eventStream, eventContinuation) = AsyncStream.makeStream()
 
         Task {
-            for await entry in logStream {
-                await processLog(entry)
-            }
-        }
-
-        Task {
-            for await entry in trackStream {
-                await processTrack(entry)
+            for await entry in eventStream {
+                await processEvent(entry)
             }
         }
     }
 
     // MARK: — Public Static API
 
-    public nonisolated static func addLoggingDestination(
-        _ dest: NexusLoggingDestination,
+    public nonisolated static func addDestination(
+        _ dest: NexusDestination,
         serialised: Bool = false
     ) {
-        NexusLoggingDestinationStore.shared.addDestination(dest, serialised: serialised)
-    }
-
-    public nonisolated static func addTrackingDestination(
-        _ dest: NexusTrackingDestination,
-        serialised: Bool = false
-    ) {
-        NexusTrackingDestinationStore.shared.addDestination(dest, serialised: serialised)
+        NexusDestinationStore.shared.addDestination(dest, serialised: serialised)
     }
 
     public nonisolated static func log(
         _ message: String,
-        _ level: NexusLogLevel = .info,
+        _ level: NexusEventType = .info,
         attributes: [String: String]? = nil,
         file: String = #file,
         function: String = #function,
@@ -76,7 +54,7 @@ public actor Nexus {
     ) {
         let bundleName = Bundle.main.object(forInfoDictionaryKey: "CFBundleName") as? String ?? "Unknown Bundle"
         let appVersion = Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String ?? ""
-        let entry = NexusLoggingEvent(
+        let entry = NexusEvent(
             level: level,
             time: Date(),
             bundleName: bundleName,
@@ -90,49 +68,24 @@ public actor Nexus {
             message: message,
             attributes: attributes
         )
-        shared.log(entry)
-    }
-
-    public nonisolated static func track(
-        _ name: String,
-        _ properties: [String: String]? = nil,
-        time: Date = Date()
-    ) {
-        let entry = NexusTrackingEvent(name: name, time: time, properties: properties)
-        shared.track(entry)
+        shared.send(entry)
     }
 
     // MARK: — Nonisolated Instance Yielders
 
-    private nonisolated func log(_ entry: NexusLoggingEvent) {
-        logContinuation.yield(entry)
-    }
-
-    private nonisolated func track(_ entry: NexusTrackingEvent) {
-        trackContinuation.yield(entry)
+    private nonisolated func send(_ entry: NexusEvent) {
+        eventContinuation.yield(entry)
     }
 
     // MARK: — Processors
 
-    private func processLog(_ entry: NexusLoggingEvent) async {
-        let wrappers = loggingStore.wrappers
+    private func processEvent(_ event: NexusEvent) async {
+        let wrappers = eventStore.destinations
 
         await withTaskGroup(of: Void.self) { group in
             for wrapper in wrappers {
                 group.addTask {
-                    wrapper.log(entry: entry)
-                }
-            }
-        }
-    }
-
-    private func processTrack(_ entry: NexusTrackingEvent) async {
-        let wrappers = trackingStore.wrappers
-
-        await withTaskGroup(of: Void.self) { group in
-            for wrapper in wrappers {
-                group.addTask {
-                    wrapper.track(entry: entry)
+                    wrapper.send(event)
                 }
             }
         }

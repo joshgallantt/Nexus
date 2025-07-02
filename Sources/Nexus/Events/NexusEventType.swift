@@ -6,13 +6,16 @@
 //
 
 /// Represents the severity of a log message..
-/// Ordered from least to most critical: `.debug` < `.info` < `.notice` < `.warning` < `.error` < `.fault`.
-public enum NexusLogLevel: Int, Sendable, Comparable, CaseIterable {
-
+/// Ordered from least to most critical: `.debug` < `.track < `.info` < `.notice` < `.warning` < `.error` < `.fault`.
+public enum NexusEventType: Int, Sendable, Comparable, CaseIterable {
     /// Very verbose diagnostic messages for in-depth troubleshooting.
     /// Hidden by default in Console.app (OSLogType.debug).
     /// Example: view lifecycle timings, full request/response payload dumps.
     case debug
+    
+    /// Used for tracking or analytics.
+    /// Hidden by default unless “Include Info” is enabled (OSLogType.info).
+    case track
 
     /// Messages recording the normal operation of the system.
     /// Hidden by default unless “Include Info” is enabled (OSLogType.info).
@@ -38,9 +41,10 @@ public enum NexusLogLevel: Int, Sendable, Comparable, CaseIterable {
     /// Emoji for quick visual identification in logs.
     public var emoji: String {
         switch self {
-        case .debug:    return "⬜"
-        case .info:     return "🟩"
-        case .notice:   return "🟦"
+        case .track:    return "🟫"
+        case .debug:    return "🟪"
+        case .info:     return "🟦"
+        case .notice:   return "🟩"
         case .warning:  return "🟨"
         case .error:    return "🟧"
         case .fault:    return "🟥"
@@ -50,6 +54,7 @@ public enum NexusLogLevel: Int, Sendable, Comparable, CaseIterable {
     /// Uppercase string name for use in log formatting.
     public var name: String {
         switch self {
+        case .track:     return "TRACKING"
         case .debug:     return "DEBUG"
         case .info:      return "INFO"
         case .notice:    return "NOTICE"
@@ -60,7 +65,7 @@ public enum NexusLogLevel: Int, Sendable, Comparable, CaseIterable {
     }
 
     /// Compares severity between two log levels.
-    public static func < (lhs: NexusLogLevel, rhs: NexusLogLevel) -> Bool {
+    public static func < (lhs: NexusEventType, rhs: NexusEventType) -> Bool {
         lhs.rawValue < rhs.rawValue
     }
 }

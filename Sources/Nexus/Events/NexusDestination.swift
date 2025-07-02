@@ -1,5 +1,5 @@
 //
-//  LogDestination.swift
+//  NexusDestination.swift
 //  NexusLogger
 //
 //  Created by Josh Gallant on 01/07/2025.
@@ -8,9 +8,9 @@
 import Foundation
 
 /// Protocol for a Nexus Log Destination (e.g., system log, remote service).
-public protocol NexusLoggingDestination: Sendable {
-    func log(
-        level: NexusLogLevel,
+public protocol NexusDestination: Sendable {
+    func send(
+        level: NexusEventType,
         time: Date,
         bundleName: String,
         appVersion: String,
