@@ -17,8 +17,6 @@
   <img src="NexusExample/example.png" alt="App Screenshot" width="10000"/>
 </p>
 
- ---
-
  ## 🚀 Features
 
  - **Flexible log/event routing** (multiple destinations: console, analytics, custom)
@@ -36,7 +34,6 @@
  - **Thread-safe and highly performant** delivery
  - **Easy integration**—works everywhere Swift does
  - **Open for extension** (custom destinations, analytics, etc)
- ---
 
  ## 📦 Installation
 
@@ -49,7 +46,6 @@
     ```
  3. Add `Nexus` as a dependency to your target.
 
- ---
 
  ## ✨ Quick Start
 
@@ -68,7 +64,6 @@
  Nexus.fault("Unexpected nil unwrapped!", attributes: ["file": "LoginManager.swift"])
  ```
 
- ---
 
  ## 🔍 API Highlights
 
@@ -116,14 +111,11 @@
  }
  ```
 
- ---
-
  ## 📖 Documentation
 
  - Full API Reference: _Coming soon!_
  - Example project included: see `NexusExampleApp.swift`
 
- ---
 
  ## 🤝 Contributing
 
@@ -131,13 +123,11 @@
  - Open issues or pull requests
  - Code should be Swift 5.9+ and covered by tests
 
- ---
 
  ## 📜 License
 
  MIT License — see `LICENSE` file.
 
- ---
 
  ## 💬 Questions, Comments, Concerns?
 
