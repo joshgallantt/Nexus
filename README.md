@@ -1,11 +1,17 @@
- Nexus
+<p align="center">
+  <img src="NexusExample/nexus.png" alt="App Screenshot" width="300"/>
+</p>
 
- ![Swift](https://img.shields.io/badge/Swift-5.9%2B-orange?style=flat-square)
- ![Platforms](https://img.shields.io/badge/Platforms-iOS%20%7C%20macOS%20%7C%20watchOS%20%7C%20tvOS-blue?style=flat-square)
- ![SPM](https://img.shields.io/badge/SPM-ready-green?style=flat-square)
- ![License](https://img.shields.io/badge/License-MIT-lightgrey?style=flat-square)
+<p align="center">
+  <img src="https://img.shields.io/badge/Swift-5.9%2B-orange?style=flat-square" />
+  <img src="https://img.shields.io/badge/Platforms-iOS%20%7C%20macOS%20%7C%20watchOS%20%7C%20tvOS-blue?style=flat-square" />
+  <img src="https://img.shields.io/badge/SPM-ready-green?style=flat-square" />
+  <img src="https://img.shields.io/badge/License-MIT-lightgrey?style=flat-square" />
+</p>
 
- > **Nexus**: _The elegant, powerful logging and event tracking solution for all your Apple apps. Flexible input. Flexible output. Gorgeous developer experience._
+<p align="center">
+  <em>A lightweight yet powerful logging and tracking solution for all your Apple apps. Flexible input. Flexible output. Gorgeous developer experience.</em>
+</p>
 
  ---
 
