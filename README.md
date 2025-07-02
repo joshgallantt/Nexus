@@ -75,13 +75,15 @@
 
  ### Custom Destinations
 
- Create your own by conforming to `NexusDestination`:
+ Create your own by conforming to `NexusDestination`, use as little data or as much as you'd like before sending it off to wherever you please! ⭐🚀🪐':
 
  ```swift
  public protocol NexusDestination: Sendable {
      func send(
          type: NexusEventType,
          time: Date,
+         deviceModel: String,
+         osVersion: String,
          bundleName: String,
          appVersion: String,
          fileName: String,
@@ -89,7 +91,8 @@
          lineNumber: String,
          threadName: String,
          message: String,
-         attributes: [String: String]?
+         attributes: [String: String]?,
+         routingKey: String?
      ) async
  }
  ```
