@@ -10,7 +10,7 @@
 </p>
 
 <p align="center">
-  <em>A lightweight yet powerful logging and tracking solution for all your Apple apps. Flexible input. Flexible output. Gorgeous developer experience.</em>
+  <em>A modern, concurrency-safe, fire-and-forget logging and tracking interface for all your Swift applications. Flexible input. Flexible output. Gorgeous developer experience.</em>
 </p>
 
 <p align="center">
