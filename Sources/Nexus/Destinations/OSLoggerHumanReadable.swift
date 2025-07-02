@@ -24,6 +24,8 @@ public struct OSLoggerHumanReadable: NexusDestination {
     public func send(
         type: NexusEventType,
         time: Date,
+        deviceModel: String,
+        osVersion: String,
         bundleName: String,
         appVersion: String,
         fileName: String,
@@ -31,8 +33,10 @@ public struct OSLoggerHumanReadable: NexusDestination {
         lineNumber: String,
         threadName: String,
         message: String,
-        attributes: [String: String]? = nil
+        attributes: [String: String]? = nil,
+        routingKey: String? = nil
     ) {
+        
         let trimmedMessage = message.trimmingCharacters(in: .whitespacesAndNewlines)
         let displayMessage = trimmedMessage.isEmpty ? "<no message>" : trimmedMessage
 
@@ -40,6 +44,7 @@ public struct OSLoggerHumanReadable: NexusDestination {
         let typeEmoji = type.emoji
         let typeName = type.name.uppercased()
 
+        // ignoring deviceModel, osVersion, and routingKey
         var output = "\(timestamp) \(typeEmoji) \(typeName) \(fileName):\(lineNumber) \(functionName) on \(threadName) - \(displayMessage)"
 
         if showProperties, let attrs = attributes, !attrs.isEmpty {
@@ -49,4 +54,5 @@ public struct OSLoggerHumanReadable: NexusDestination {
 
         logger.log(level: type.defaultOSLogType, "\(output, privacy: .public)")
     }
+
 }

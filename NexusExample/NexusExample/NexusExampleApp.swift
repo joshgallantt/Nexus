@@ -11,7 +11,7 @@ import Nexus
 @main
 struct NexusExampleApp: App {
     init() {
-        //        Nexus.addTrackingDestination(DefaultFirebaseDestination())
+
         Nexus.addDestination(OSLoggerHumanReadable(), serialised: true)
         
         Nexus.sendEvent("User Tapped Some Button!", .track)
@@ -20,9 +20,6 @@ struct NexusExampleApp: App {
         Nexus.sendEvent("User tapped login button", .notice)
         Nexus.sendEvent("User tapped login button", .warning)
         Nexus.sendEvent("User tapped login button", .error)
-        Nexus.track("hi")
-        
-        
         Nexus.sendEvent("User tapped login button", .fault)
 
         Nexus.sendEvent(

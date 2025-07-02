@@ -12,6 +12,8 @@ public protocol NexusDestination: Sendable {
     func send(
         type: NexusEventType,
         time: Date,
+        deviceModel: String,
+        osVersion: String,
         bundleName: String,
         appVersion: String,
         fileName: String,
@@ -19,7 +21,7 @@ public protocol NexusDestination: Sendable {
         lineNumber: String,
         threadName: String,
         message: String,
-        attributes: [String: String]?
+        attributes: [String: String]?,
+        routingKey: String?
     ) async
 }
-

@@ -24,6 +24,8 @@ enum NexusDestinationStrategy {
                 await destination.send(
                     type: event.type,
                     time: event.time,
+                    deviceModel: event.deviceModel,
+                    osVersion: event.osVersion,
                     bundleName: event.bundleName,
                     appVersion: event.appVersion,
                     fileName: event.fileName,
@@ -31,7 +33,8 @@ enum NexusDestinationStrategy {
                     lineNumber: event.lineNumber,
                     threadName: event.threadName,
                     message: event.message,
-                    attributes: event.attributes
+                    attributes: event.attributes,
+                    routingKey: event.routingKey
                 )
             }
         }

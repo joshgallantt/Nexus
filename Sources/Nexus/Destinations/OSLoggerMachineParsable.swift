@@ -21,6 +21,8 @@ public struct OSLoggerMachineParsable: NexusDestination {
     public func send(
         type: NexusEventType,
         time: Date,
+        deviceModel: String,
+        osVersion: String,
         bundleName: String,
         appVersion: String,
         fileName: String,
@@ -28,12 +30,13 @@ public struct OSLoggerMachineParsable: NexusDestination {
         lineNumber: String,
         threadName: String,
         message: String,
-        attributes: [String: String]? = nil
+        attributes: [String: String]? = nil,
+        routingKey: String? = nil
     ) {
         let trimmed = message.trimmingCharacters(in: .whitespacesAndNewlines)
         let nonEmpty = trimmed.isEmpty ? "<no message>" : trimmed
 
-        let sections = [
+        var sections = [
             "\(type.emoji)\(type.name)",
             sanitizeString(TimeFormatter.shared.iso8601TimeString(from: time)),
             sanitizeString(bundleName),
@@ -41,18 +44,23 @@ public struct OSLoggerMachineParsable: NexusDestination {
             "\(sanitizeString(fileName)):\(lineNumber)",
             sanitizeString(threadName),
             sanitizeString(functionName),
+            sanitizeString(deviceModel),
+            sanitizeString(osVersion),
             "\"\(sanitizeString(nonEmpty))\""
         ]
-
-        var output = sections.joined(separator: "|")
+        
+        if let routingKey {
+            sections.append("routingKey=\(sanitizeString(routingKey))")
+        }
 
         if let attrs = attributes, !attrs.isEmpty {
             let kvs = attrs
                 .map { sanitizeString($0.key) + "=" + sanitizeString($0.value) }
                 .joined(separator: ",")
-            output += "|\(kvs)"
+            sections.append(kvs)
         }
 
+        let output = sections.joined(separator: "|")
         logger.log(level: type.defaultOSLogType, "\(output, privacy: .public)")
     }
 

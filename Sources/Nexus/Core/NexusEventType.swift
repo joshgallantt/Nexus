@@ -29,7 +29,7 @@ public enum NexusEventType: Int, Sendable, Comparable, CaseIterable {
     /// Example: cache hits, number of items parsed, minor navigation events.
     case notice
 
-    /// Recoverable issues or unusual conditions.
+    /// recoverable issues or unusual conditions.
     /// Example: missing optional field, entering degraded mode.
     case warning
 

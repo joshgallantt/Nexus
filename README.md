@@ -38,10 +38,10 @@
  ```swift
  import Nexus
 
-  Add a destination (e.g., console logger, analytics, etc.)
+ // Add a destination (e.g., console logger, analytics, etc.)
  Nexus.addDestination(OSLoggerHumanReadable())
 
-  Send different types of events
+ // Send different types of events
  Nexus.debug("User tapped login button")
  Nexus.info("Screen appeared", attributes: ["screen": "HomeView"]) 
  Nexus.track("Signup Flow: Step 1 Start")
@@ -56,13 +56,13 @@
 
  ### Log Event Types
 
- - `.debug`   – for verbose diagnostics (hidden by default)
+ - `.debug`   – for debugging
  - `.track`   – analytics/tracking
  - `.info`    – normal operation
- - `.notice`  – significant conditions
- - `.warning` – recoverable issues
- - `.error`   – unrecoverable error
- - `.fault`   – critical failure
+ - `.notice`  – normal but significant conditions that may require monitoring
+ - `.warning` – recoverable issues or unusual conditions
+ - `.error`   – expected but unrecoverable errors that require developer attention
+ - `.fault`   – entered a expected and critical state that should never occur.
 
  ### Adding Destinations
 
@@ -71,7 +71,7 @@
  ```swift
  Nexus.addDestination(YOUR_DESTINATION(), serialised: true)
  ```
- - `serialised: true` ensures events are delivered in order. Use `false` for maximum performance (out-of-order allowed).
+ - `serialised: true` Defaults to true. When set to true, events are delivered individually and in the exact order they were sent (strict ordering), which is ideal for destinations that rely on event sequence. When set to false, events may be delivered out of order or in batches, offering better performance when ordering is not important or batching is desired.
 
  ### Custom Destinations
 
