@@ -202,11 +202,13 @@ public actor Nexus {
         function: String = #function,
         line: Int = #line
     ) {
+        let bundleName = Bundle.main.object(forInfoDictionaryKey: "CFBundleName") as? String ?? "Unknown Bundle"
+        let appVersion = Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String ?? ""
         let entry = NexusLog(
             level: level,
             time: Date(),
-            bundleName: Bundle.main.bundleIdentifier ?? "",
-            appVersion: Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String ?? "",
+            bundleName: bundleName,
+            appVersion: appVersion,
             fileName: (file as NSString).lastPathComponent,
             functionName: function,
             lineNumber: String(line),
@@ -264,3 +266,4 @@ public actor Nexus {
         }
     }
 }
+
