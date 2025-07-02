@@ -7,7 +7,7 @@
 
 import Foundation
 
-package struct NexusLog: Sendable {
+package struct NexusLoggingEvent: Sendable {
     public let level: NexusLogLevel
     public let time: Date
     public let bundleName: String
