@@ -30,7 +30,7 @@ public final class NexusTrackingDestinationStore: @unchecked Sendable, TrackingD
 
     public func addDestination(_ destination: NexusTrackingDestination, serialised: Bool = false) {
         let wrapper: NexusTrackingDestinationWrapper = serialised
-            ? .serialised(SerialTrackingActor(destination: destination))
+            ? .serialised(NexusTrackingSerialActor(destination: destination))
             : .unsynchronised(destination)
 
         queue.sync {

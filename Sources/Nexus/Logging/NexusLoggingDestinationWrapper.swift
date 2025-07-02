@@ -10,7 +10,7 @@ import Foundation
 // MARK: — Logging Destination Wrapper
 
 enum NexusLoggingDestinationWrapper {
-    case serialised(SerialLoggingActor)
+    case serialised(NexusLoggingSerialActor)
     case unsynchronised(NexusLoggingDestination)
 
     func log(entry: NexusLoggingEvent) {
@@ -35,28 +35,5 @@ enum NexusLoggingDestinationWrapper {
                 )
             }
         }
-    }
-}
-
-actor SerialLoggingActor {
-    let destination: NexusLoggingDestination
-
-    init(destination: NexusLoggingDestination) {
-        self.destination = destination
-    }
-
-    func enqueue(entry: NexusLoggingEvent) async {
-        await destination.log(
-            level: entry.level,
-            time: entry.time,
-            bundleName: entry.bundleName,
-            appVersion: entry.appVersion,
-            fileName: entry.fileName,
-            functionName: entry.functionName,
-            lineNumber: entry.lineNumber,
-            threadName: entry.threadName,
-            message: entry.message,
-            attributes: entry.attributes
-        )
     }
 }

@@ -10,7 +10,7 @@ import Foundation
 // MARK: — Tracking Destination Wrapper
 
 enum NexusTrackingDestinationWrapper {
-    case serialised(SerialTrackingActor)
+    case serialised(NexusTrackingSerialActor)
     case unsynchronised(NexusTrackingDestination)
 
     func track(entry: NexusTrackingEvent) {
@@ -28,21 +28,5 @@ enum NexusTrackingDestinationWrapper {
                 )
             }
         }
-    }
-}
-
-actor SerialTrackingActor {
-    let destination: NexusTrackingDestination
-
-    init(destination: NexusTrackingDestination) {
-        self.destination = destination
-    }
-
-    func enqueue(entry: NexusTrackingEvent) async {
-        await destination.track(
-            name: entry.name,
-            time: entry.time,
-            properties: entry.properties
-        )
     }
 }

@@ -30,7 +30,7 @@ public final class NexusLoggingDestinationStore: @unchecked Sendable, LoggingDes
 
     public func addDestination(_ destination: NexusLoggingDestination, serialised: Bool) {
         let wrapper: NexusLoggingDestinationWrapper = serialised
-            ? .serialised(SerialLoggingActor(destination: destination))
+            ? .serialised(NexusLoggingSerialActor(destination: destination))
             : .unsynchronised(destination)
 
         queue.sync {

@@ -95,4 +95,12 @@ struct TimeFormatter: Sendable {
     func iso8601TimeString(from date: Date) -> String {
         Self.formatter.string(from: date)
     }
+    
+    func shortTimeWithMillis(from date: Date) -> String {
+        let formatter = DateFormatter()
+        formatter.dateFormat = "HH:mm:ss.SSS"
+        formatter.timeZone = .current
+        return formatter.string(from: date)
+    }
+
 }
