@@ -13,6 +13,10 @@
   <em>A lightweight yet powerful logging and tracking solution for all your Apple apps. Flexible input. Flexible output. Gorgeous developer experience.</em>
 </p>
 
+<p align="center">
+  <img src="NexusExample/example.png" alt="App Screenshot" width="10000"/>
+</p>
+
  ---
 
  ## 🚀 Features
