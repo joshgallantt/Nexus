@@ -5,7 +5,7 @@
  ![SPM](https://img.shields.io/badge/SPM-ready-green?style=flat-square)
  ![License](https://img.shields.io/badge/License-MIT-lightgrey?style=flat-square)
 
- > **Nexus**: _The elegant, powerful logging and event tracking solution for all your Apple apps. Flexible output. Gorgeous developer experience._
+ > **Nexus**: _The elegant, powerful logging and event tracking solution for all your Apple apps. Flexible input. Flexible output. Gorgeous developer experience._
 
  ---
 
@@ -17,7 +17,15 @@
  - **Thread-safe and highly performant** delivery
  - **Easy integration**—works everywhere Swift does
  - **Open for extension** (custom destinations, analytics, etc)
+ 
+  ## 🧭 uiding Principles
 
+ - **Flexible log/event routing** (multiple destinations: console, analytics, custom)
+ - **Level-based logging** (`.debug`, `.info`, `.notice`, `.warning`, `.error`, `.fault`, `.track`)
+ - **Attribute-rich events** (add context, device, file, and more)
+ - **Thread-safe and highly performant** delivery
+ - **Easy integration**—works everywhere Swift does
+ - **Open for extension** (custom destinations, analytics, etc)
  ---
 
  ## 📦 Installation
@@ -71,11 +79,12 @@
  ```swift
  Nexus.addDestination(YOUR_DESTINATION(), serialised: true)
  ```
- - `serialised: true` Defaults to true. When set to true, events are delivered individually and in the exact order they were sent (strict ordering), which is ideal for destinations that rely on event sequence. When set to false, events may be delivered out of order or in batches, offering better performance when ordering is not important or batching is desired.
+ - `serialised: Bool = true`
+ When set to true, events are delivered individually and in the exact order they were sent (strict ordering), which is ideal for destinations that rely on event sequence. When set to false, events may be delivered out of order or in batches, offering better performance when ordering is not important or batching is desired.
 
- ### Custom Destinations
+ ### Custom Destinations ⭐🚀🪐
 
- Create your own by conforming to `NexusDestination`, use as little data or as much as you'd like before sending it off to wherever you please! ⭐🚀🪐':
+ Create your own by conforming to `NexusDestination`, use as little data or as much as you'd like before sending it off to wherever you please!'
 
  ```swift
  public protocol NexusDestination: Sendable {
@@ -99,16 +108,6 @@
 
  ---
 
- ## 💡 Example Output
-
- ```text
- 🟦 [INFO] 2025-07-02T18:33:12Z HomeView.swift:18 [main] — Screen appeared {"screen":"HomeView"}
- 🟧 [ERROR] 2025-07-02T18:33:13Z NetworkManager.swift:121 [main] — Network unreachable {"retryCount":"2"}
- 🟥 [FAULT] 2025-07-02T18:33:15Z LoginManager.swift:58 [main] — Unexpected nil unwrapped! {"file":"LoginManager.swift"}
- ```
-
- ---
-
  ## 📖 Documentation
 
  - Full API Reference: _Coming soon!_
@@ -120,7 +119,6 @@
 
  Contributions, bug reports, and feature requests welcome!
  - Open issues or pull requests
- - Please follow [Conventional Commits](https:////www.conventionalcommits.org/)
  - Code should be Swift 5.9+ and covered by tests
 
  ---
@@ -131,8 +129,8 @@
 
  ---
 
- ## 💬 Questions / Comments ?
+ ## 💬 Questions, Comments, Concerns?
 
  Open an issue or start a discussion!
 
- — Made with ❤️ by the Josh Gallant
+ — Made with ❤️ by Josh Gallant
