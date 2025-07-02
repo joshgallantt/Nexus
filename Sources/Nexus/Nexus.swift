@@ -18,7 +18,6 @@ public actor Nexus {
     private let eventStream: AsyncStream<NexusEvent>
     private let eventContinuation: AsyncStream<NexusEvent>.Continuation
 
-    // Cached metadata
     private let bundleName: String
     private let appVersion: String
     private let deviceModel: String
@@ -28,7 +27,6 @@ public actor Nexus {
         self.eventStore = eventStore
         (eventStream, eventContinuation) = AsyncStream.makeStream()
 
-        // Precompute metadata
         self.bundleName = Bundle.main.object(forInfoDictionaryKey: "CFBundleName") as? String ?? "Unknown Bundle"
         self.appVersion = Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String ?? "Unknown Version"
         self.deviceModel = NexusDeviceInfo.model
