@@ -23,6 +23,7 @@ public actor PrintLogger: NexusLoggingDestination {
         message: String,
         attributes: [String : String]?
     ) async {
-        print("🧪\(level.name): \(message)")
+        try? await Task.sleep(nanoseconds: 1_000_000_000) // 1 second
+        print("🟩\(message)")
     }
 }

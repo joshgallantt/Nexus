@@ -1,38 +1,160 @@
 //
-//  Nexus.swift
+//  NexusLog.swift
 //  Nexus
 //
 //  Created by Josh Gallant on 02/07/2025.
 //
 
+
 import SwiftUI
 import Foundation
 
+
 // MARK: — Destination Stores
 
-public actor NexusLoggingDestinationStore {
-    public static let shared = NexusLoggingDestinationStore()
-    private var destinations: [NexusLoggingDestination] = []
-    
-    public func addDestination(_ destination: NexusLoggingDestination) {
-        destinations.append(destination)
-    }
-    
-    public func allDestinations() -> [NexusLoggingDestination] {
-        destinations
+enum DestinationLoggingWrapper {
+    case serialised(SerialLoggingActor)
+    case unsynchronised(NexusLoggingDestination)
+
+    func log(entry: NexusLog) {
+        switch self {
+        case .serialised(let actor):
+            Task {
+                await actor.enqueue(entry: entry)
+            }
+        case .unsynchronised(let dest):
+            Task.detached(priority: .background) {
+                await dest.log(
+                    level: entry.level,
+                    time: entry.time,
+                    bundleName: entry.bundleName,
+                    appVersion: entry.appVersion,
+                    fileName: entry.fileName,
+                    functionName: entry.functionName,
+                    lineNumber: entry.lineNumber,
+                    threadName: entry.threadName,
+                    message: entry.message,
+                    attributes: entry.attributes
+                )
+            }
+        }
     }
 }
 
-public actor NexusTrackingDestinationStore {
-    public static let shared = NexusTrackingDestinationStore()
-    private var destinations: [NexusTrackingDestination] = []
-    
-    public func addDestination(_ destination: NexusTrackingDestination) {
-        destinations.append(destination)
+
+actor SerialLoggingActor {
+    let destination: NexusLoggingDestination
+
+    init(destination: NexusLoggingDestination) {
+        self.destination = destination
     }
-    
-    public func allDestinations() -> [NexusTrackingDestination] {
-        destinations
+
+    func enqueue(entry: NexusLog) async {
+        await destination.log(
+            level: entry.level,
+            time: entry.time,
+            bundleName: entry.bundleName,
+            appVersion: entry.appVersion,
+            fileName: entry.fileName,
+            functionName: entry.functionName,
+            lineNumber: entry.lineNumber,
+            threadName: entry.threadName,
+            message: entry.message,
+            attributes: entry.attributes
+        )
+    }
+}
+
+
+public final class NexusLoggingDestinationStore: @unchecked Sendable {
+    public static let shared = NexusLoggingDestinationStore()
+
+    private let queue = DispatchQueue(label: "com.nexuslogger.logging.destinations.queue")
+
+    private var _wrappers: [DestinationLoggingWrapper] = []
+
+    private init() {}
+
+    var wrappers: [DestinationLoggingWrapper] {
+        queue.sync { _wrappers }
+    }
+
+    public func addDestination(_ destination: NexusLoggingDestination, serialised: Bool) {
+        let wrapper: DestinationLoggingWrapper = serialised
+            ? .serialised(SerialLoggingActor(destination: destination))
+            : .unsynchronised(destination)
+
+        queue.sync {
+            _wrappers.append(wrapper)
+        }
+    }
+}
+
+
+actor SerialLoggingWrapper {
+    let destination: NexusLoggingDestination
+
+    init(destination: NexusLoggingDestination) {
+        self.destination = destination
+    }
+
+    func log(entry: NexusLog) async {
+        await destination.log(
+            level: entry.level,
+            time: entry.time,
+            bundleName: entry.bundleName,
+            appVersion: entry.appVersion,
+            fileName: entry.fileName,
+            functionName: entry.functionName,
+            lineNumber: entry.lineNumber,
+            threadName: entry.threadName,
+            message: entry.message,
+            attributes: entry.attributes
+        )
+    }
+}
+
+
+enum LoggingDestinationWrapper {
+    case serialised(SerialLoggingWrapper)
+    case nonSerialised(NexusLoggingDestination)
+
+    func log(entry: NexusLog) {
+        switch self {
+        case .serialised(let actor):
+            // Guaranteed ordering via actor
+            Task {
+                await actor.log(entry: entry)
+            }
+        case .nonSerialised(let dest):
+            // Not ordered — fire and forget
+            Task.detached(priority: .background) {
+                await dest.log(
+                    level: entry.level,
+                    time: entry.time,
+                    bundleName: entry.bundleName,
+                    appVersion: entry.appVersion,
+                    fileName: entry.fileName,
+                    functionName: entry.functionName,
+                    lineNumber: entry.lineNumber,
+                    threadName: entry.threadName,
+                    message: entry.message,
+                    attributes: entry.attributes
+                )
+            }
+        }
+    }
+}
+
+
+public final class NexusTrackingDestinationStore: @unchecked Sendable {
+    public static let shared = NexusTrackingDestinationStore()
+    private var _destinations: [NexusTrackingDestination] = []
+    private let queue = DispatchQueue(label: "com.nexuslogger.tracking.destinations.queue")
+    private init() {}
+    var destinations: [NexusTrackingDestination] { queue.sync { _destinations } }
+    public func addDestination(_ destination: NexusTrackingDestination) {
+        queue.sync { _destinations.append(destination) }
     }
 }
 
@@ -40,67 +162,50 @@ public actor NexusTrackingDestinationStore {
 
 public actor Nexus {
     public static let shared = Nexus()
-    
-    // Streams with buffering limit to prevent memory blowup
+
+    // 1) Log stream
     private let logStream: AsyncStream<NexusLog>
     private let logContinuation: AsyncStream<NexusLog>.Continuation
-    
+
+    // 2) Tracking stream
     private let trackStream: AsyncStream<NexusTrackingEvent>
     private let trackContinuation: AsyncStream<NexusTrackingEvent>.Continuation
-    
+
     private init() {
-        (logStream, logContinuation) = AsyncStream.makeStream(bufferingPolicy: .bufferingOldest(500))
-        (trackStream, trackContinuation) = AsyncStream.makeStream(bufferingPolicy: .bufferingOldest(500))
+        (logStream, logContinuation)     = AsyncStream.makeStream()
+        (trackStream, trackContinuation) = AsyncStream.makeStream()
 
-        Task(priority: .utility) {
-            for await entry in self.logStream {
-                await self.processLog(entry)
+        Task {
+            for await entry in logStream {
+                await processLog(entry)
             }
         }
 
-        Task(priority: .utility) {
-            for await entry in self.trackStream {
-                await self.processTrack(entry)
+        Task {
+            for await entry in trackStream {
+                await processTrack(entry)
             }
         }
     }
 
-    
     // MARK: — Public Static API
+
+//    public nonisolated static func addLoggingDestination(_ dest: NexusLoggingDestination) {
+//        NexusLoggingDestinationStore.shared.addDestination(dest)
+//    }
     
-    public static func addLoggingDestination(
+    public nonisolated static func addLoggingDestination(
         _ dest: NexusLoggingDestination,
-        serialised: Bool? = true
+        serialised: Bool = false
     ) {
-        let finalDest: NexusLoggingDestination
-        if serialised != false {
-            finalDest = NexusSerializedLoggingDestination(wrapping: dest)
-        } else {
-            finalDest = dest
-        }
-
-        Task {
-            await NexusLoggingDestinationStore.shared.addDestination(finalDest)
-        }
+        NexusLoggingDestinationStore.shared.addDestination(dest, serialised: serialised)
     }
 
-    public static func addTrackingDestination(
-        _ dest: NexusTrackingDestination,
-        serialised: Bool? = true
-    ) {
-        let finalDest: NexusTrackingDestination
-        if serialised != false {
-            finalDest = NexusSerializedTrackingDestination(wrapping: dest)
-        } else {
-            finalDest = dest
-        }
-
-        Task {
-            await NexusTrackingDestinationStore.shared.addDestination(finalDest)
-        }
+    public nonisolated static func addTrackingDestination(_ dest: NexusTrackingDestination) {
+        NexusTrackingDestinationStore.shared.addDestination(dest)
     }
 
-    public static func log(
+    public nonisolated static func log(
         _ message: String,
         _ level: NexusLogLevel = .info,
         attributes: [String: String]? = nil,
@@ -122,136 +227,50 @@ public actor Nexus {
             message: message,
             attributes: attributes
         )
-        
-        Task {
-            await shared.log(entry)
-        }
+        shared.log(entry)     // calls the nonisolated instance method below
     }
 
-    public static func track(
+    public nonisolated static func track(
         _ name: String,
         _ properties: [String: String]? = nil,
         time: Date = Date()
     ) {
         let entry = NexusTrackingEvent(name: name, time: time, properties: properties)
-        Task {
-            await shared.track(entry)
-        }
+        shared.track(entry)   // calls the nonisolated instance method below
     }
 
-    // MARK: — Actor-isolated Methods
+    // MARK: — Nonisolated Instance Yielders
 
-    private func log(_ entry: NexusLog) {
+    private nonisolated func log(_ entry: NexusLog) {
         logContinuation.yield(entry)
     }
 
-    private func track(_ entry: NexusTrackingEvent) {
+    private nonisolated func track(_ entry: NexusTrackingEvent) {
         trackContinuation.yield(entry)
     }
 
+    // MARK: — Processors
+
     private func processLog(_ entry: NexusLog) async {
-        let destinations = await NexusLoggingDestinationStore.shared.allDestinations()
-        
+        let wrappers = NexusLoggingDestinationStore.shared.wrappers
+
         await withTaskGroup(of: Void.self) { group in
-            for destination in destinations {
+            for wrapper in wrappers {
                 group.addTask {
-                    await destination.log(
-                        level: entry.level,
-                        time: entry.time,
-                        bundleName: entry.bundleName,
-                        appVersion: entry.appVersion,
-                        fileName: entry.fileName,
-                        functionName: entry.functionName,
-                        lineNumber: entry.lineNumber,
-                        threadName: entry.threadName,
-                        message: entry.message,
-                        attributes: entry.attributes
-                    )
+                    wrapper.log(entry: entry)
                 }
             }
         }
     }
 
     private func processTrack(_ entry: NexusTrackingEvent) async {
-        let dests = await NexusTrackingDestinationStore.shared.allDestinations()
-        await withTaskGroup(of: Void.self) { group in
-            for dest in dests {
-                group.addTask {
-                    await dest.track(
-                        name: entry.name,
-                        time: entry.time,
-                        properties: entry.properties
-                    )
-                }
-            }
+        let dests = NexusTrackingDestinationStore.shared.destinations
+        for dest in dests {
+            await dest.track(
+                name: entry.name,
+                time: entry.time,
+                properties: entry.properties
+            )
         }
-    }
-}
-
-//
-//  NexusSerializedTrackingDestination.swift
-//  Nexus
-//
-//  Created by Josh Gallant on 02/07/2025.
-//
-
-import Foundation
-
-package actor NexusSerializedTrackingDestination: NexusTrackingDestination {
-    private let wrapped: NexusTrackingDestination
-
-    package init(wrapping destination: NexusTrackingDestination) {
-        self.wrapped = destination
-    }
-
-    package func track(
-        name: String,
-        time: Date,
-        properties: [String : String]?
-    ) async {
-        await wrapped.track(name: name, time: time, properties: properties)
-    }
-}
-
-//
-//  NexusSerializedLoggingDestination.swift
-//  Nexus
-//
-//  Created by Josh Gallant on 02/07/2025.
-//
-
-import Foundation
-
-package actor NexusSerializedLoggingDestination: NexusLoggingDestination {
-    private let wrapped: NexusLoggingDestination
-
-    package init(wrapping destination: NexusLoggingDestination) {
-        self.wrapped = destination
-    }
-
-    package func log(
-        level: NexusLogLevel,
-        time: Date,
-        bundleName: String,
-        appVersion: String,
-        fileName: String,
-        functionName: String,
-        lineNumber: String,
-        threadName: String,
-        message: String,
-        attributes: [String : String]?
-    ) async {
-        await wrapped.log(
-            level: level,
-            time: time,
-            bundleName: bundleName,
-            appVersion: appVersion,
-            fileName: fileName,
-            functionName: functionName,
-            lineNumber: lineNumber,
-            threadName: threadName,
-            message: message,
-            attributes: attributes
-        )
     }
 }

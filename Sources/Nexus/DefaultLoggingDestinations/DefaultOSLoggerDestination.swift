@@ -40,7 +40,7 @@ public struct DefaultOSLoggerDestination: NexusLoggingDestination {
         threadName: String,
         message: String,
         attributes: [String: String]? = nil
-    ) async {
+    ) {
         let trimmed = message.trimmingCharacters(in: .whitespacesAndNewlines)
         let nonEmpty = trimmed.isEmpty ? "<no message>" : trimmed
 

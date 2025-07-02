@@ -13,7 +13,7 @@ struct NexusExampleApp: App {
     init() {
         Nexus.addLoggingDestination(DefaultOSLoggerDestination(), serialised: true)
         Nexus.addTrackingDestination(DefaultFirebaseDestination())
-        Nexus.addLoggingDestination(PrintLogger(), serialised: true)
+        Nexus.addLoggingDestination(PrintLogger())
 
         Nexus.log("1", .debug)
         Nexus.log("2", .info)
@@ -25,8 +25,8 @@ struct NexusExampleApp: App {
     }
 
     var body: some Scene {
-        WindowGroup {
-            ContentView()
-        }
+//        WindowGroup {
+//            ContentView()
+//        }
     }
 }
