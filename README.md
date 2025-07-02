@@ -18,7 +18,7 @@
  - **Easy integration**—works everywhere Swift does
  - **Open for extension** (custom destinations, analytics, etc)
  
-  ## 🧭 uiding Principles
+  ## 🧭 Guiding Principles
 
  - **Flexible log/event routing** (multiple destinations: console, analytics, custom)
  - **Level-based logging** (`.debug`, `.info`, `.notice`, `.warning`, `.error`, `.fault`, `.track`)
