@@ -1,9 +1,11 @@
 //
-//  NexusLogLevel.swift
-//  NexusLogger
+//  NexusEventType.swift
+//  Nexus
 //
 //  Created by Josh Gallant on 01/07/2025.
 //
+
+import os
 
 /// Represents the severity of a log message..
 /// Ordered from least to most critical: `.debug` < `.track < `.info` < `.notice` < `.warning` < `.error` < `.fault`.
@@ -63,9 +65,21 @@ public enum NexusEventType: Int, Sendable, Comparable, CaseIterable {
         case .fault:     return "FAULT"
         }
     }
+    
+    public var defaultOSLogType: OSLogType {
+        switch self {
+        case .debug:   return .debug
+        case .track:   return .info
+        case .info:    return .info
+        case .notice:  return .default
+        case .warning, .error: return .error
+        case .fault:   return .fault
+        }
+    }
 
-    /// Compares severity between two log levels.
+    /// Compares severity between two log types.
     public static func < (lhs: NexusEventType, rhs: NexusEventType) -> Bool {
         lhs.rawValue < rhs.rawValue
     }
 }
+

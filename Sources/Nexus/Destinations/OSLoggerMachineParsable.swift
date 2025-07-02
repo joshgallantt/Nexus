@@ -1,5 +1,5 @@
 //
-//  DefaultOSLoggerDestination.swift
+//  OSLoggerMachineParsable.swift
 //  Nexus
 //
 //  Created by Josh Gallant on 01/07/2025.
@@ -8,7 +8,7 @@
 import Foundation
 import os
 
-public struct DefaultOSLoggerDestination: NexusDestination {
+public struct OSLoggerMachineParsable: NexusDestination {
     private let logger: Logger
 
     public init(
@@ -18,20 +18,8 @@ public struct DefaultOSLoggerDestination: NexusDestination {
         self.logger = Logger(subsystem: subsystem, category: category)
     }
 
-    private func osLogType(for level: NexusEventType) -> OSLogType {
-        switch level {
-        case .debug:   return .debug
-        case .track:   return .info
-        case .info:    return .info
-        case .notice:  return .default
-        case .warning: return .error
-        case .error:   return .error
-        case .fault:   return .fault
-        }
-    }
-
     public func send(
-        level: NexusEventType,
+        type: NexusEventType,
         time: Date,
         bundleName: String,
         appVersion: String,
@@ -46,7 +34,7 @@ public struct DefaultOSLoggerDestination: NexusDestination {
         let nonEmpty = trimmed.isEmpty ? "<no message>" : trimmed
 
         let sections = [
-            "\(level.emoji)\(level.name)",
+            "\(type.emoji)\(type.name)",
             sanitizeString(TimeFormatter.shared.iso8601TimeString(from: time)),
             sanitizeString(bundleName),
             sanitizeString(appVersion),
@@ -65,7 +53,7 @@ public struct DefaultOSLoggerDestination: NexusDestination {
             output += "|\(kvs)"
         }
 
-        logger.log(level: osLogType(for: level), "\(output, privacy: .public)")
+        logger.log(level: type.defaultOSLogType, "\(output, privacy: .public)")
     }
 
     private func sanitizeString(_ input: String) -> String {

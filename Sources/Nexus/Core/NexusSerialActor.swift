@@ -1,5 +1,5 @@
 //
-//  NexusLoggingSerialActor.swift
+//  NexusSerialActor.swift
 //  Nexus
 //
 //  Created by Josh Gallant on 02/07/2025.
@@ -15,7 +15,7 @@ actor NexusSerialActor {
 
     func enqueue(_ event: NexusEvent) async {
         await destination.send(
-            level: event.level,
+            type: event.type,
             time: event.time,
             bundleName: event.bundleName,
             appVersion: event.appVersion,

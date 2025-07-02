@@ -21,19 +21,8 @@ public struct OSLoggerHumanReadable: NexusDestination {
         self.showProperties = showProperties
     }
 
-    private func osLogType(for level: NexusEventType) -> OSLogType {
-        switch level {
-        case .debug:   return .debug
-        case .track:   return .info
-        case .info:    return .info
-        case .notice:  return .default
-        case .warning, .error: return .error
-        case .fault:   return .fault
-        }
-    }
-
     public func send(
-        level: NexusEventType,
+        type: NexusEventType,
         time: Date,
         bundleName: String,
         appVersion: String,
@@ -48,16 +37,16 @@ public struct OSLoggerHumanReadable: NexusDestination {
         let displayMessage = trimmedMessage.isEmpty ? "<no message>" : trimmedMessage
 
         let timestamp = TimeFormatter.shared.shortTimeWithMillis(from: time)
-        let levelEmoji = level.emoji
-        let levelName = level.name.uppercased()
+        let typeEmoji = type.emoji
+        let typeName = type.name.uppercased()
 
-        var output = "\(timestamp) \(levelEmoji) \(levelName) \(fileName):\(lineNumber) \(functionName) on \(threadName) - \(displayMessage)"
+        var output = "\(timestamp) \(typeEmoji) \(typeName) \(fileName):\(lineNumber) \(functionName) on \(threadName) - \(displayMessage)"
 
         if showProperties, let attrs = attributes, !attrs.isEmpty {
             let propsBlock = attrs.map { "\($0.key): \($0.value)" }.joined(separator: "\n")
             output += "\n\(propsBlock)"
         }
 
-        logger.log(level: osLogType(for: level), "\(output, privacy: .public)")
+        logger.log(level: type.defaultOSLogType, "\(output, privacy: .public)")
     }
 }

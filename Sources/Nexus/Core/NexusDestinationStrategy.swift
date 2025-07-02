@@ -22,7 +22,7 @@ enum NexusDestinationStrategy {
         case .unsynchronised(let destination):
             Task.detached(priority: .background) {
                 await destination.send(
-                    level: event.level,
+                    type: event.type,
                     time: event.time,
                     bundleName: event.bundleName,
                     appVersion: event.appVersion,
