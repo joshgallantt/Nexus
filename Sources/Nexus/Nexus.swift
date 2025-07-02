@@ -9,8 +9,7 @@
 import SwiftUI
 import Foundation
 
-
-// MARK: — Destination Stores
+// MARK: — Logging Destination Wrapper
 
 enum DestinationLoggingWrapper {
     case serialised(SerialLoggingActor)
@@ -41,7 +40,6 @@ enum DestinationLoggingWrapper {
     }
 }
 
-
 actor SerialLoggingActor {
     let destination: NexusLoggingDestination
 
@@ -65,12 +63,10 @@ actor SerialLoggingActor {
     }
 }
 
-
 public final class NexusLoggingDestinationStore: @unchecked Sendable {
     public static let shared = NexusLoggingDestinationStore()
 
     private let queue = DispatchQueue(label: "com.nexuslogger.logging.destinations.queue")
-
     private var _wrappers: [DestinationLoggingWrapper] = []
 
     private init() {}
@@ -90,71 +86,65 @@ public final class NexusLoggingDestinationStore: @unchecked Sendable {
     }
 }
 
+// MARK: — Tracking Destination Wrapper
 
-actor SerialLoggingWrapper {
-    let destination: NexusLoggingDestination
+enum DestinationTrackingWrapper {
+    case serialised(SerialTrackingActor)
+    case unsynchronised(NexusTrackingDestination)
 
-    init(destination: NexusLoggingDestination) {
-        self.destination = destination
-    }
-
-    func log(entry: NexusLog) async {
-        await destination.log(
-            level: entry.level,
-            time: entry.time,
-            bundleName: entry.bundleName,
-            appVersion: entry.appVersion,
-            fileName: entry.fileName,
-            functionName: entry.functionName,
-            lineNumber: entry.lineNumber,
-            threadName: entry.threadName,
-            message: entry.message,
-            attributes: entry.attributes
-        )
-    }
-}
-
-
-enum LoggingDestinationWrapper {
-    case serialised(SerialLoggingWrapper)
-    case nonSerialised(NexusLoggingDestination)
-
-    func log(entry: NexusLog) {
+    func track(entry: NexusTrackingEvent) {
         switch self {
         case .serialised(let actor):
-            // Guaranteed ordering via actor
             Task {
-                await actor.log(entry: entry)
+                await actor.enqueue(entry: entry)
             }
-        case .nonSerialised(let dest):
-            // Not ordered — fire and forget
+        case .unsynchronised(let dest):
             Task.detached(priority: .background) {
-                await dest.log(
-                    level: entry.level,
+                await dest.track(
+                    name: entry.name,
                     time: entry.time,
-                    bundleName: entry.bundleName,
-                    appVersion: entry.appVersion,
-                    fileName: entry.fileName,
-                    functionName: entry.functionName,
-                    lineNumber: entry.lineNumber,
-                    threadName: entry.threadName,
-                    message: entry.message,
-                    attributes: entry.attributes
+                    properties: entry.properties
                 )
             }
         }
     }
 }
 
+actor SerialTrackingActor {
+    let destination: NexusTrackingDestination
+
+    init(destination: NexusTrackingDestination) {
+        self.destination = destination
+    }
+
+    func enqueue(entry: NexusTrackingEvent) async {
+        await destination.track(
+            name: entry.name,
+            time: entry.time,
+            properties: entry.properties
+        )
+    }
+}
 
 public final class NexusTrackingDestinationStore: @unchecked Sendable {
     public static let shared = NexusTrackingDestinationStore()
-    private var _destinations: [NexusTrackingDestination] = []
+    
+    private var _wrappers: [DestinationTrackingWrapper] = []
     private let queue = DispatchQueue(label: "com.nexuslogger.tracking.destinations.queue")
     private init() {}
-    var destinations: [NexusTrackingDestination] { queue.sync { _destinations } }
-    public func addDestination(_ destination: NexusTrackingDestination) {
-        queue.sync { _destinations.append(destination) }
+
+    var wrappers: [DestinationTrackingWrapper] {
+        queue.sync { _wrappers }
+    }
+
+    public func addDestination(_ destination: NexusTrackingDestination, serialised: Bool = false) {
+        let wrapper: DestinationTrackingWrapper = serialised
+            ? .serialised(SerialTrackingActor(destination: destination))
+            : .unsynchronised(destination)
+
+        queue.sync {
+            _wrappers.append(wrapper)
+        }
     }
 }
 
@@ -172,7 +162,7 @@ public actor Nexus {
     private let trackContinuation: AsyncStream<NexusTrackingEvent>.Continuation
 
     private init() {
-        (logStream, logContinuation)     = AsyncStream.makeStream()
+        (logStream, logContinuation) = AsyncStream.makeStream()
         (trackStream, trackContinuation) = AsyncStream.makeStream()
 
         Task {
@@ -190,10 +180,6 @@ public actor Nexus {
 
     // MARK: — Public Static API
 
-//    public nonisolated static func addLoggingDestination(_ dest: NexusLoggingDestination) {
-//        NexusLoggingDestinationStore.shared.addDestination(dest)
-//    }
-    
     public nonisolated static func addLoggingDestination(
         _ dest: NexusLoggingDestination,
         serialised: Bool = false
@@ -201,8 +187,11 @@ public actor Nexus {
         NexusLoggingDestinationStore.shared.addDestination(dest, serialised: serialised)
     }
 
-    public nonisolated static func addTrackingDestination(_ dest: NexusTrackingDestination) {
-        NexusTrackingDestinationStore.shared.addDestination(dest)
+    public nonisolated static func addTrackingDestination(
+        _ dest: NexusTrackingDestination,
+        serialised: Bool = false
+    ) {
+        NexusTrackingDestinationStore.shared.addDestination(dest, serialised: serialised)
     }
 
     public nonisolated static func log(
@@ -227,7 +216,7 @@ public actor Nexus {
             message: message,
             attributes: attributes
         )
-        shared.log(entry)     // calls the nonisolated instance method below
+        shared.log(entry)
     }
 
     public nonisolated static func track(
@@ -236,7 +225,7 @@ public actor Nexus {
         time: Date = Date()
     ) {
         let entry = NexusTrackingEvent(name: name, time: time, properties: properties)
-        shared.track(entry)   // calls the nonisolated instance method below
+        shared.track(entry)
     }
 
     // MARK: — Nonisolated Instance Yielders
@@ -264,13 +253,14 @@ public actor Nexus {
     }
 
     private func processTrack(_ entry: NexusTrackingEvent) async {
-        let dests = NexusTrackingDestinationStore.shared.destinations
-        for dest in dests {
-            await dest.track(
-                name: entry.name,
-                time: entry.time,
-                properties: entry.properties
-            )
+        let wrappers = NexusTrackingDestinationStore.shared.wrappers
+
+        await withTaskGroup(of: Void.self) { group in
+            for wrapper in wrappers {
+                group.addTask {
+                    wrapper.track(entry: entry)
+                }
+            }
         }
     }
 }
