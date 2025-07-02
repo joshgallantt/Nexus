@@ -11,7 +11,7 @@ import Nexus
 @main
 struct NexusExampleApp: App {
     init() {
-        Nexus.addLoggingDestination(DefaultOSLoggerDestination(), serialised: true)
+        Nexus.addLoggingDestination(DefaultOSLoggerDestination(), serialised: false)
         Nexus.addTrackingDestination(DefaultFirebaseDestination())
         Nexus.addLoggingDestination(PrintLogger())
 

@@ -5,9 +5,27 @@
 //  Created by Josh Gallant on 02/07/2025.
 //
 
+//
+//  NexusLog.swift
+//  Nexus
+//
+//  Created by Josh Gallant on 02/07/2025.
+//
 
 import SwiftUI
 import Foundation
+
+// MARK: — Protocols for Testability
+
+protocol LoggingDestinationStore {
+    var wrappers: [DestinationLoggingWrapper] { get }
+    func addDestination(_ destination: NexusLoggingDestination, serialised: Bool)
+}
+
+protocol TrackingDestinationStore {
+    var wrappers: [DestinationTrackingWrapper] { get }
+    func addDestination(_ destination: NexusTrackingDestination, serialised: Bool)
+}
 
 // MARK: — Logging Destination Wrapper
 
@@ -63,7 +81,9 @@ actor SerialLoggingActor {
     }
 }
 
-public final class NexusLoggingDestinationStore: @unchecked Sendable {
+// MARK: — Logging Destination Store
+
+public final class NexusLoggingDestinationStore: @unchecked Sendable, LoggingDestinationStore {
     public static let shared = NexusLoggingDestinationStore()
 
     private let queue = DispatchQueue(label: "com.nexuslogger.logging.destinations.queue")
@@ -126,11 +146,14 @@ actor SerialTrackingActor {
     }
 }
 
-public final class NexusTrackingDestinationStore: @unchecked Sendable {
+// MARK: — Tracking Destination Store
+
+public final class NexusTrackingDestinationStore: @unchecked Sendable, TrackingDestinationStore {
     public static let shared = NexusTrackingDestinationStore()
-    
+
     private var _wrappers: [DestinationTrackingWrapper] = []
     private let queue = DispatchQueue(label: "com.nexuslogger.tracking.destinations.queue")
+
     private init() {}
 
     var wrappers: [DestinationTrackingWrapper] {
@@ -151,17 +174,29 @@ public final class NexusTrackingDestinationStore: @unchecked Sendable {
 // MARK: — Nexus Actor
 
 public actor Nexus {
-    public static let shared = Nexus()
+    public static let shared = Nexus(
+        loggingStore: NexusLoggingDestinationStore.shared,
+        trackingStore: NexusTrackingDestinationStore.shared
+    )
 
-    // 1) Log stream
+    private let loggingStore: LoggingDestinationStore
+    private let trackingStore: TrackingDestinationStore
+
+    // Log stream
     private let logStream: AsyncStream<NexusLog>
     private let logContinuation: AsyncStream<NexusLog>.Continuation
 
-    // 2) Tracking stream
+    // Tracking stream
     private let trackStream: AsyncStream<NexusTrackingEvent>
     private let trackContinuation: AsyncStream<NexusTrackingEvent>.Continuation
 
-    private init() {
+    internal init(
+        loggingStore: LoggingDestinationStore,
+        trackingStore: TrackingDestinationStore
+    ) {
+        self.loggingStore = loggingStore
+        self.trackingStore = trackingStore
+
         (logStream, logContinuation) = AsyncStream.makeStream()
         (trackStream, trackContinuation) = AsyncStream.makeStream()
 
@@ -243,7 +278,7 @@ public actor Nexus {
     // MARK: — Processors
 
     private func processLog(_ entry: NexusLog) async {
-        let wrappers = NexusLoggingDestinationStore.shared.wrappers
+        let wrappers = loggingStore.wrappers
 
         await withTaskGroup(of: Void.self) { group in
             for wrapper in wrappers {
@@ -255,7 +290,7 @@ public actor Nexus {
     }
 
     private func processTrack(_ entry: NexusTrackingEvent) async {
-        let wrappers = NexusTrackingDestinationStore.shared.wrappers
+        let wrappers = trackingStore.wrappers
 
         await withTaskGroup(of: Void.self) { group in
             for wrapper in wrappers {
@@ -266,4 +301,3 @@ public actor Nexus {
         }
     }
 }
-
