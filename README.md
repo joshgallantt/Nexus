@@ -15,7 +15,7 @@
 
 
 <p align="center"\>
-<img src="NexusExample/example.png" alt="App Screenshot" width="10000"/\>
+<img src="NexusExample/example.png" alt="App Screenshot" width="10000"/>
 </p>
 
 
@@ -198,7 +198,7 @@ public protocol NexusDestination: Sendable {
 
 * All events are guaranteed to be delivered safely—either sequentially or concurrently depending on configuration.
 
-## <br> Example Firebase Destination
+## <br> 🔥 Example Firebase Destination
 ```swift
 import Foundation
 import FirebaseAnalytics
