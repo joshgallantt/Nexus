@@ -53,7 +53,7 @@ Logging and analytics in Swift are fragmented, inconsistent, and often bolted on
 
 * 🧩 Dozens of `print` or `os_log` statements scattered across the codebase
 * 🧪 Unstructured events tossed into multiple analytics platforms
-* 🛠️ Painful process when adding or remove a new service (Firebase, Mparticle, Mixpanel, Sentry, etc.)
+* 🛠️ Painful process when adding, changing, or removing a new service (Firebase, Mparticle, Mixpanel, Sentry, etc.)
 * 😵 Confusing or unsafe concurrency around logging
 
 **Nexus** was built to fix all of that. It's your app's **central nervous system for events**, designed to:
