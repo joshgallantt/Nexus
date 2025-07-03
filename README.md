@@ -113,6 +113,31 @@ The `serialised` parameter controls how events are delivered to a destination:
 * `true` *(default)*: Events are delivered in order, one at a time, using an internal actor. Use this for destinations that require sequencing (e.g. session tracking, chain-dependent logging).
 
 * `false`: Events are sent concurrently from background tasks. This is ideal for analytics SDKs or non-sequenced logs where performance is key.
+  
+**⚠️ With great power, comes great responsibility. For non-serialised destinations, you are responsible for ensuring thread-safety in your implementation.**
+
+When you add a destination like this:
+
+```swift
+Nexus.addDestination(MyDestination(), serialised: false)
+```
+...Nexus dispatches events like this:
+
+```swift
+Task.detached(priority: .background) {
+    await destination.send(...)
+}
+```
+This means:
+* Events can arrive simultaneously.
+* Each event runs in its own concurrent task.
+* Nexus does not queue, debounce, lock, or isolate access to your destination.
+* Your send(...) implementation may be called from multiple threads at the same time.
+  
+If your destination mutates shared state (e.g., file handles, in-memory buffers, database connections), and it isn't protected, you'll run into:
+* Data races
+* Crashes
+* Corrupted or interleaved logs
 
 ## <br> 🎯 Routing with routingKey
 You can optionally route events to specific destinations by attaching a routingKey:
