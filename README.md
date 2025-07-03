@@ -47,43 +47,74 @@ Nexus.error("Network unreachable", attributes: ["retryCount": "2"])
 Nexus.fault("Unexpected nil unwrapped!", attributes: ["file": "LoginManager.swift"])
 ```
 
-## <br> 🚀 Features
+## <br> 🧠 Why Nexus?
 
-  - **Flexible log/event routing** (multiple destinations: console, analytics, custom)
-  - **Level-based logging** (`.debug`, `.info`, `.notice`, `.warning`, `.error`, `.fault`, `.track`)
-  - **Attribute-rich events** (add context, device, file, and more)
-  - **Thread-safe and highly performant** delivery
-  - **Easy integration**—works everywhere Swift does
-  - **Open for extension** (custom destinations, analytics, etc.)
+Logging and analytics in Swift are fragmented, inconsistent, and often bolted on as an afterthought. Most teams end up with:
+
+* 🧩 Dozens of custom `print` or `os_log` statements
+* 🧪 Unstructured events tossed into multiple analytics platforms
+* 😵 Confusing or unsafe concurrency around logging
+* 🛠️ Painful setup every time you onboard or remove a new service (Firebase, Mparticle, Mixpanel, Sentry, etc.)
+
+**Nexus** was built to fix all of that. It's your app's **central nervous system for events**, designed to:
+
+* 💡 **Standardize how you log and track**
+* 🧵 **Guarantee thread-safety and performance**
+* 🎯 **Route logs/events flexibly** to multiple outputs
+* 🧱 **Scale with your architecture** (from toy apps to massive multi-module clients)
+
+## <br> 🧬 Design Philosophy
+
+Nexus is built with these core tenets:
+
+* **Composability over hardcoding** – define your event once, route it anywhere: console, analytics, files, crash logs, and more.
+* **First-class concurrency** – every part of Nexus is actor-based and thread-safe by default. Fire-and-forget, even from async contexts.
+* **Minimal intrusion** – drop-in logging, zero-config defaults, and Swift-native ergonomics.
+* **Scalable architecture** – from side-projects to production apps, Nexus grows with your needs. Add new destinations, log levels, or routing keys without touching call sites.
 
 
-## <br> 🧭 Guiding Principles
+## <br> ✨ What Makes Nexus Different?
 
-  - **Flexible log/event routing** (multiple destinations: console, analytics, custom)
-  - **Level-based logging** (`.debug`, `.info`, `.notice`, `.warning`, `.error`, `.fault`, `.track`)
-  - **Attribute-rich events** (add context, device, file, and more)
-  - **Thread-safe and highly performant** delivery
-  - **Easy integration**—works everywhere Swift does
-  - **Open for extension** (custom destinations, analytics, etc.)
+While most logging tools focus on one job (e.g., logs to console), Nexus is built around **composable event routing**:
 
-## <br> Log Event Types
+| Capability                              | Nexus | OSLog | Firebase | Custom DIY |
+| --------------------------------------- | ----- | ----- | -------- | ---------- |
+| Multi-destination routing               | ✅     | ❌     | ❌      | ❓         |
+| Extensible with custom backends         | ✅     | ❌     | ❌      | 🔧         |
+| Thread-safe, actor-backed delivery      | ✅     | ❌     | ❌      | ❌         |
+| Tracks logs *and* analytics             | ✅     | ❌     | ✅      | ⚠️         |
+| Works across iOS, macOS, watchOS, tvOS  | ✅     | ✅     | ✅      | Depends    |
+| Fire-and-forget with structured context | ✅     | ❌     | ⚠️       ❌          |
 
-  - `.debug` – for debugging
-  - `.track` – analytics/tracking
-  - `.info` – normal operation
-  - `.notice` – normal but significant conditions that may require monitoring
-  - `.warning` – recoverable issues or unusual conditions
-  - `.error` – expected but unrecoverable errors that require developer attention
-  - `.fault` – entered an unexpected and critical state that should never occur
+---
 
-## <br> Adding Destinations
+## <br> 🪄 Example Use Case: Firebase + Console + File
 
 ```swift
-Nexus.addDestination(YOUR_DESTINATION(), serialised: true)
+import Nexus
+
+Nexus.addDestination(OSLoggerHumanReadable())
+Nexus.addDestination(FirebaseDestination(), serialised: false)
+Nexus.addDestination(FileLogger("/logs/analytics.log"))
+
+Nexus.track("User started onboarding", attributes: ["step": "1"])
 ```
 
-  - `serialised: Bool = true`
-    When set to `true`, events are delivered individually and in the exact order they were sent (strict ordering), which is ideal for destinations that rely on event sequence. When set to `false`, events may be delivered out of order or in batches, offering better performance when ordering is not important or batching is desired.
+That’s it. Events are sent to all destinations concurrently and safely. No juggling SDKs or writing glue code. No threading bugs.
+
+## <br> 🧵 Event Serialization
+
+```swift
+Nexus.addDestination(MyDestination(), serialised: true)
+```
+
+The `serialised` parameter controls how events are delivered to a destination:
+
+* `true` *(default)*: Events are delivered **one at a time and in the exact order** they were sent.
+  Use this when your destination depends on **strict sequencing**—such as session tracking or event chaining.
+
+* `false`: Events may be delivered **concurrently or in batches**, potentially out of order.
+  This offers **higher throughput** and is ideal for analytics services or destinations where **ordering doesn't matter**.
 
 ## <br> Custom Destinations ⭐🚀🪐
 
