@@ -17,30 +17,6 @@
 <img src="NexusExample/example.png" alt="App Screenshot" width="10000"/\>
 </p\>
 
------
-
-## 🚀 Features
-
-  - **Flexible log/event routing** (multiple destinations: console, analytics, custom)
-  - **Level-based logging** (`.debug`, `.info`, `.notice`, `.warning`, `.error`, `.fault`, `.track`)
-  - **Attribute-rich events** (add context, device, file, and more)
-  - **Thread-safe and highly performant** delivery
-  - **Easy integration**—works everywhere Swift does
-  - **Open for extension** (custom destinations, analytics, etc.)
-
------
-
-## 🧭 Guiding Principles
-
-  - **Flexible log/event routing** (multiple destinations: console, analytics, custom)
-  - **Level-based logging** (`.debug`, `.info`, `.notice`, `.warning`, `.error`, `.fault`, `.track`)
-  - **Attribute-rich events** (add context, device, file, and more)
-  - **Thread-safe and highly performant** delivery
-  - **Easy integration**—works everywhere Swift does
-  - **Open for extension** (custom destinations, analytics, etc.)
-
------
-
 ## 📦 Installation
 
 ### Swift Package Manager (Preferred)
@@ -51,8 +27,6 @@
     https://github.com/joshgallantt/Nexus.git
     ```
 3.  Add `Nexus` as a dependency to your target.
-
------
 
 ## ✨ Quick Start
 
@@ -71,11 +45,26 @@ Nexus.error("Network unreachable", attributes: ["retryCount": "2"])
 Nexus.fault("Unexpected nil unwrapped!", attributes: ["file": "LoginManager.swift"])
 ```
 
------
+## 🚀 Features
 
-## 🔍 API Highlights
+  - **Flexible log/event routing** (multiple destinations: console, analytics, custom)
+  - **Level-based logging** (`.debug`, `.info`, `.notice`, `.warning`, `.error`, `.fault`, `.track`)
+  - **Attribute-rich events** (add context, device, file, and more)
+  - **Thread-safe and highly performant** delivery
+  - **Easy integration**—works everywhere Swift does
+  - **Open for extension** (custom destinations, analytics, etc.)
 
-### Log Event Types
+
+## 🧭 Guiding Principles
+
+  - **Flexible log/event routing** (multiple destinations: console, analytics, custom)
+  - **Level-based logging** (`.debug`, `.info`, `.notice`, `.warning`, `.error`, `.fault`, `.track`)
+  - **Attribute-rich events** (add context, device, file, and more)
+  - **Thread-safe and highly performant** delivery
+  - **Easy integration**—works everywhere Swift does
+  - **Open for extension** (custom destinations, analytics, etc.)
+
+## Log Event Types
 
   - `.debug` – for debugging
   - `.track` – analytics/tracking
@@ -85,9 +74,7 @@ Nexus.fault("Unexpected nil unwrapped!", attributes: ["file": "LoginManager.swif
   - `.error` – expected but unrecoverable errors that require developer attention
   - `.fault` – entered an unexpected and critical state that should never occur
 
-### Adding Destinations
-
-A destination is anything that can receive events: console, remote logging, analytics, and more.
+## Adding Destinations
 
 ```swift
 Nexus.addDestination(YOUR_DESTINATION(), serialised: true)
@@ -96,7 +83,7 @@ Nexus.addDestination(YOUR_DESTINATION(), serialised: true)
   - `serialised: Bool = true`
     When set to `true`, events are delivered individually and in the exact order they were sent (strict ordering), which is ideal for destinations that rely on event sequence. When set to `false`, events may be delivered out of order or in batches, offering better performance when ordering is not important or batching is desired.
 
-### Custom Destinations ⭐🚀🪐
+## Custom Destinations ⭐🚀🪐
 
 Create your own by conforming to `NexusDestination`. Use as little or as much data as you'd like before sending it off to wherever you please\!
 
@@ -120,7 +107,50 @@ public protocol NexusDestination: Sendable {
 }
 ```
 
------
+## Example Firebase Destination
+```swift
+import Foundation
+import FirebaseAnalytics
+
+public struct FirebaseDestination: NexusDestination {
+    public init() {}
+
+    public func send(
+        type: NexusEventType,
+        time: Date,
+        deviceModel: String,
+        osVersion: String,
+        bundleName: String,
+        appVersion: String,
+        fileName: String,
+        functionName: String,
+        lineNumber: String,
+        threadName: String,
+        message: String,
+        attributes: [String: String]? = nil,
+        routingKey: String? = nil
+    ) {
+        var eventParams = attributes ?? [:]
+        eventParams["type"] = type.name
+        eventParams["timestamp"] = ISO8601DateFormatter().string(from: time)
+        eventParams["deviceModel"] = deviceModel
+        eventParams["osVersion"] = osVersion
+        eventParams["bundleName"] = bundleName
+        eventParams["appVersion"] = appVersion
+        eventParams["fileName"] = fileName
+        eventParams["functionName"] = functionName
+        eventParams["lineNumber"] = lineNumber
+        eventParams["threadName"] = threadName
+        eventParams["message"] = message
+        if let routingKey = routingKey {
+            eventParams["routingKey"] = routingKey
+        }
+
+        Analytics.logEvent("nexus_event", parameters: eventParams)
+    }
+}
+```
+
 
 ## 📖 Documentation
 
