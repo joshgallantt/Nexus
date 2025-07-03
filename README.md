@@ -51,9 +51,9 @@ Nexus.fault("Unexpected nil unwrapped!", attributes: ["file": "LoginManager.swif
 
 Logging and analytics in Swift are fragmented, inconsistent, and often bolted on as an afterthought. Most teams end up with:
 
-* 🧩 Dozens of custom `print` or `os_log` statements
+* 🧩 Dozens of `print` or `os_log` statements scattered across the codebase
 * 🧪 Unstructured events tossed into multiple analytics platforms
-* 🛠️ Painful process every time you integrate or remove a new service (Firebase, Mparticle, Mixpanel, Sentry, etc.)
+* 🛠️ Painful process when adding or remove a new service (Firebase, Mparticle, Mixpanel, Sentry, etc.)
 * 😵 Confusing or unsafe concurrency around logging
 
 **Nexus** was built to fix all of that. It's your app's **central nervous system for events**, designed to:
@@ -67,27 +67,26 @@ Logging and analytics in Swift are fragmented, inconsistent, and often bolted on
 
 Nexus is built with these core tenets:
 
-* **Composability over hardcoding** – define your event once, route it anywhere now.. or later: console, analytics, files, etc.
+* **Composability** – define your event once, route it anywhere (console, analytics, files...)
 * **Scalable architecture** – from side-projects to production apps, Nexus is designed to grow with your needs as requirements change. Add, swap, or remove destinations and logic without touching call sites.
 * **First-class concurrency** – every part of Nexus is actor-based and thread-safe by default. Fire-and-forget, even from async contexts.
-* **Stays out of your way** – Doesn't try to do too much, or force an opinion. You control the destinations.
-* **No Dependancies** – Ever.
+* **Unopinionated** – you choose what data to log and where it goes
+* **No Dependancies** – ever.
 
 
 ## <br> ✨ What Makes Nexus Different?
 
 While most logging tools focus on one job (e.g., logs to console), Nexus is built around **composable event routing**:
 
-| Capability                              | Nexus | OSLog | Firebase | Custom DIY |
-| --------------------------------------- | ----- | ----- | -------- | ---------- |
-| Multi-destination routing               | ✅     | ❌     | ❌      | ❓         |
-| Extensible with custom backends         | ✅     | ❌     | ❌      | 🔧         |
-| Thread-safe, actor-backed delivery      | ✅     | ❌     | ❌      | ❌         |
-| Tracks logs *and* analytics             | ✅     | ❌     | ✅      | ⚠️         |
-| Works across iOS, macOS, watchOS, tvOS  | ✅     | ✅     | ✅      | Depends    |
-| Fire-and-forget with structured context | ✅     | ❌     | ⚠️      |❌          |
-
----
+| Capability                             | Nexus | OSLog | Firebase | DIY     |
+| -------------------------------------- | ----- | ----- | -------- | ------- |
+| Multi-destination routing              | ✅     | ❌     | ❌        | 🔧      |
+| Custom backend integration             | ✅     | ❌     | ❌        | ⚠️      |
+| Thread-safe delivery (actor-based)     | ✅     | ❌     | ❌        | ❌       |
+| Handles logs *and* analytics           | ✅     | ❌     | ✅        | ⚠️      |
+| Works across iOS, macOS, watchOS, tvOS | ✅     | ✅     | ✅        | Depends |
+| Fire-and-forget API                    | ✅     | ❌     | ⚠️       | ❌       |
+| Destination filtering via routingKey   | ✅     | ❌     | ❌        | ❌       |
 
 ## <br> 🪄 Example Use Case: Firebase + Console + File
 
@@ -111,13 +110,26 @@ Nexus.addDestination(MyDestination(), serialised: true)
 
 The `serialised` parameter controls how events are delivered to a destination:
 
-* `true` *(default)*: Events are delivered **one at a time and in the exact order** they were sent.
-  Use this when your destination depends on **strict sequencing**—such as session tracking or event chaining.
+* `true` *(default)*: Events are delivered in order, one at a time, using an internal actor. Use this for destinations that require sequencing (e.g. session tracking, chain-dependent logging).
 
-* `false`: Events may be delivered **concurrently or in batches**, potentially out of order.
-  This offers **higher throughput** and is ideal for analytics services or destinations where **ordering doesn't matter**.
+* `false`: Events are sent concurrently from background tasks. This is ideal for analytics SDKs or non-sequenced logs where performance is key.
 
-## <br> Custom Destinations ⭐🚀🪐
+## <br> 🎯 Routing with routingKey
+You can optionally route events to specific destinations by attaching a routingKey:
+
+```swift
+Nexus.track("User ID loaded", routingKey: "firebase")
+```
+
+Destinations can opt in to specific keys:
+
+```swift
+guard routingKey == "analytics" else { return }
+```
+
+This allows you to send certain events to Firebase, others to file loggers, and others to the console—all from the same call site.
+
+## <br> 🪐 Custom Destinations
 
 Create your own by conforming to `NexusDestination`. Use as little or as much data as you'd like before sending it off to wherever you please\!
 
@@ -141,6 +153,12 @@ public protocol NexusDestination: Sendable {
 }
 ```
 
+* You’ll receive detailed metadata.
+
+* You can filter with routingKey.
+
+* All events are guaranteed to be delivered safely—either sequentially or concurrently depending on configuration.
+
 ## <br> Example Firebase Destination
 ```swift
 import Foundation
@@ -163,24 +181,24 @@ public struct FirebaseDestination: NexusDestination {
         message: String,
         attributes: [String: String]? = nil,
         routingKey: String? = nil
-    ) {
+    ) async {
         guard routingKey == "firebase" else { return }
 
-        var eventParams = attributes ?? [:]
-        eventParams["type"] = type.name
-        eventParams["timestamp"] = ISO8601DateFormatter().string(from: time)
-        eventParams["deviceModel"] = deviceModel
-        eventParams["osVersion"] = osVersion
-        eventParams["bundleName"] = bundleName
-        eventParams["appVersion"] = appVersion
-        eventParams["fileName"] = fileName
-        eventParams["functionName"] = functionName
-        eventParams["lineNumber"] = lineNumber
-        eventParams["threadName"] = threadName
-        eventParams["message"] = message
-        eventParams["routingKey"] = routingKey
+        var params = attributes ?? [:]
+        params["type"] = type.name
+        params["timestamp"] = ISO8601DateFormatter().string(from: time)
+        params["deviceModel"] = deviceModel
+        params["osVersion"] = osVersion
+        params["bundleName"] = bundleName
+        params["appVersion"] = appVersion
+        params["fileName"] = fileName
+        params["functionName"] = functionName
+        params["lineNumber"] = lineNumber
+        params["threadName"] = threadName
+        params["routingKey"] = routingKey
+        params["message"] = message
 
-        Analytics.logEvent(message, parameters: eventParams)
+        Analytics.logEvent(message, parameters: params)
     }
 }
 ```
