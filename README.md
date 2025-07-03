@@ -118,7 +118,8 @@ The `serialised` parameter controls **how events are delivered** to the destinat
 * Use this mode when:
 
   * Event **sequencing matters** (e.g. session tracking, chain-dependent logging).
-  * You're unsure if your destination is thread-safe.
+  * You want **thread-aware logging**, ideal for **debugging concurrency issues** — logs retain the originating thread name and are delivered in order.
+
 
 ### ⚡️ `serialised: false`
 
