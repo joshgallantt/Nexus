@@ -166,7 +166,7 @@ This allows you to send certain events to Firebase, others to file loggers, and 
 
 >🧠 Note: routingKey is just a convention.
 >Destinations can inspect and filter on any event metadata — such as type, attributes, fileName, or even threadName.
-You’re in full control of how events are handled.
+You’re in full control of how events are handled. Hint: Maybe a analytics desination only cares about tracking event types 😉
 
 ## <br> 🪐 Custom Destinations
 
