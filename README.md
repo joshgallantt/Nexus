@@ -85,7 +85,7 @@ While most logging tools focus on one job (e.g., logs to console), Nexus is buil
 | Thread-safe, actor-backed delivery      | ✅     | ❌     | ❌      | ❌         |
 | Tracks logs *and* analytics             | ✅     | ❌     | ✅      | ⚠️         |
 | Works across iOS, macOS, watchOS, tvOS  | ✅     | ✅     | ✅      | Depends    |
-| Fire-and-forget with structured context | ✅     | ❌     | ⚠️       ❌          |
+| Fire-and-forget with structured context | ✅     | ❌     | ⚠️      |❌          |
 
 ---
 
