@@ -147,7 +147,7 @@ The `serialised` parameter controls **how events are delivered** to the destinat
 * `send(...)` may be called from **multiple threads simultaneously**
 * You **must ensure thread safety** within your destination
 
-> If your destination accesses shared state (e.g. writes to a file, array, or database), protect it using an `actor` or another form of synchronization (e.g. locks or `DispatchQueue`).
+>Note: If your destination accesses shared state (e.g. writes to a file, array, or database), protect it using an `actor` or another form of synchronization (e.g. locks or `DispatchQueue`).
 
 ## <br> 🎯 Routing with routingKey
 You can optionally route events to specific destinations by attaching a routingKey:
@@ -164,8 +164,7 @@ guard routingKey == "analytics" else { return }
 
 This allows you to send certain events to Firebase, others to file loggers, and others to the console—all from the same call site.
 
->🧠 Note: routingKey is just a convention.
->Destinations can inspect and filter on any event metadata — such as type, attributes, fileName, or even threadName.
+>Note: routingKey is just a convention. Destinations can inspect and filter on any event metadata — such as type, attributes, fileName, or even threadName.
 You’re in full control of how events are handled. Hint: Maybe a analytics desination only cares about tracking event types 😉
 
 ## <br> 🪐 Custom Destinations
