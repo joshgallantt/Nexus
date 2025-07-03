@@ -100,7 +100,7 @@ Nexus.track("User signed up", ["method": "email"])
 ```
 
 ### <br> Features Include:
-**☝🥇 Single Call Site:** Send all events from a single API.
+**🥇 Single Call Site:** Send all events from a single API.
 
 **🔌 Pluggable & Scalable Destinations:** Add, remove, modify, or replace backends with zero disruption.
 
@@ -110,11 +110,14 @@ Nexus.track("User signed up", ["method": "email"])
 
 **🚫 No Dependencies:** Nexus is lightweight and vendor-agnostic — no external dependencies.
 
-> Whether you're logging to the console in dev, sending analytics to Firebase in prod, or writing logs to disk in CI — Nexus is for you.
+Whether you're debug logging to the console in dev, sending analytics to Firebase in prod, or writing logs to disk in CI — Nexus is for you.
 
 ## <br> 📍 NexusDestinations
 
-A **NexusDestination** receives events from Nexus. They are a place where you can map, modify, and finally send data where it needs to go. 
+A **NexusDestination** receives events from Nexus.
+* They are a place where you can map, modify, and filter data before sending it to it's final destination.
+* Add as many as you like, even multiple for the same endpoint if you want!
+* The processing of events happen in parallel - so when one destination slows down, the rest won't become blocked.
 
 ### Registering a Destination
 
@@ -180,10 +183,8 @@ public protocol NexusDestination: Sendable {
 }
 ```
 
-You can use any subset of the metadata — including custom routing logic.
-
 ## <br> ☕️ Filtering
-By default, all events are sent to all NexusDestinations, it's up to you how you handle them.
+By default, all events are sent to all NexusDestinations with rich metadata along with your payload, it's up to you how you handle them.
 
 The parameter `routingKey` is provided specifically to filter on a per event basis:
 
@@ -197,7 +198,7 @@ Then filter in your destination like so:
 guard routingKey == "firebase" else { return }
 ```
 
-Alternatively, NexusDestinations can also filter by event type, metadata, thread name, or any other data as you see fit.
+Alternatively, NexusDestinations can also filter or do logic based on any other data as you see fit.
 
 ## <br> 🔥 Example: Firebase Destination
 
@@ -223,6 +224,7 @@ public struct FirebaseDestination: NexusDestination {
 ```
 
 ## <br> 🧱 Example: Multiple Destinations
+The following configuration will route events to all three destinations safely.
 
 ```swift
 Nexus.addDestination(OSLoggerHumanReadable())
@@ -231,8 +233,6 @@ Nexus.addDestination(FileLogger("/logs/analytics.log"))
 
 Nexus.track("User started onboarding", attributes: ["step": "1"])
 ```
-
-This configuration will route events to all three destinations concurrently and safely.
 
 ## <br> 🧪 Feature Comparison
 
