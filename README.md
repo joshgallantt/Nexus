@@ -132,7 +132,6 @@ Task.detached(priority: .background) {
 ✅ Benefits
 * Maximum throughput — events processed in parallel
 * Low latency — no queueing or blocking
-* Ideal for SDKs like Firebase, Sentry, Mixpanel
 * No ordering constraints
 
 ⚠️ Your Responsibility
