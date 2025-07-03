@@ -18,9 +18,27 @@
 <img src="NexusExample/example.png" alt="App Screenshot" width="10000"/>
 </p>
 
-## <br> 🚀 Getting Started
+## <br><br> What is Nexus?
 
-### 1. Installation
+Traditional logging and analytics setups in Swift apps are messy, inconsistent, and hard to scale. Teams often end up with:
+
+* ❌ Dozens of `print` or `os_log` calls scattered across the codebase
+* ❌ Analytics SDKs glued on without structure, separation, or thread-safety
+* ❌ Tedious boilerplate to support different targets, platforms, or environments
+* ❌ Difficult migrations when adding, removing, or switching logging and analytics services
+* ❌ More time is spent on how to track, than what to track.
+  
+### <br> Nexus was built to solve these problems.
+
+It’s a **modern, composable event router** that centralizes your app’s logs, analytics, and tracking through one unified API:
+
+```swift
+Nexus.track("User signed up", ["method": "email"])
+```
+
+## <br><br> Getting Started
+
+### <br> 1. Installation
 
 In Xcode: **File → Add Packages...**
 Then enter repo URL:
@@ -29,11 +47,11 @@ Then enter repo URL:
    ```
 Finally, Add `Nexus` as a dependency to your target.
 
-### 2. Register Destinations
+### <br> 2. Register Destinations
 
 Destinations define **where** your events end up and **how** they get there. Register them early in your app lifecycle. More on them later..
 
-#### UIKit (AppDelegate)
+#### <br> UIKit (AppDelegate)
 
 ```swift
 import Nexus
@@ -45,7 +63,7 @@ func application(_ application: UIApplication,
 }
 ```
 
-#### SwiftUI (`@main`)
+#### <br> SwiftUI (`@main`)
 
 ```swift
 import Nexus
@@ -65,7 +83,7 @@ struct MyApp: App {
 }
 ```
 
-### 3. Emit Events
+### <br> 3. Emit Events
 
 ```swift
 Nexus.debug("User tapped login button")
@@ -81,25 +99,8 @@ Nexus.error("Network unreachable", ["retryCount": "2"])
 Nexus.fault("Unexpected nil unwrapped!", ["file": "LoginManager.swift"])
 ```
 
-## <br> ⚛️ So, why Nexus?
+## <br><br> Features:
 
-Traditional logging and analytics setups in Swift apps are messy, inconsistent, and hard to scale. Teams often end up with:
-
-* ❌ Dozens of `print` or `os_log` calls scattered across the codebase
-* ❌ Analytics SDKs glued on without structure, separation, or thread-safety
-* ❌ Tedious boilerplate to support different targets, platforms, or environments
-* ❌ Difficult migrations when adding, removing, or switching logging and analytics services
-* ❌ More time is spent on how to track, than what to track.
-  
-### <br> Nexus was built to solve these problems.
-
-It’s a **modern, composable event router** that centralizes your app’s logs, analytics, and tracking through one unified API:
-
-```swift
-Nexus.track("User signed up", ["method": "email"])
-```
-
-### <br> Features Include:
 **🥇 Single Call Site:** Send all events from a single API.
 
 **🔌 Pluggable & Scalable Destinations:** Add, remove, modify, or replace backends with zero disruption.
@@ -112,11 +113,12 @@ Nexus.track("User signed up", ["method": "email"])
 
 Whether you're debug logging to the console in dev, sending analytics to Firebase in prod, or writing logs to disk in CI — Nexus is for you.
 
-## <br> 📦 Optional Payloads
+
+## <br><br> Optional Payloads
 
 Nexus supports **three styles of payloads** for maximum flexibility depending on your needs:
 
-### 1. `Dictionary<String, String>`
+### <br> 1. `Dictionary<String, String>`
 
 Use this when:
 
@@ -127,7 +129,7 @@ Use this when:
 Nexus.info("User tapped login", ["screen": "LoginView", "button": "submit"])
 ```
 
-### 2. `Encodable` Types
+### <br> 2. `Encodable` Types
 
 Use this when:
 
@@ -146,7 +148,7 @@ struct LoginEvent: Codable {
 Nexus.track("Login event", LoginEvent(screen: "LoginView", button: "submit", userID: "abc123"))
 ```
 
-### 3. Pre-encoded `Data` (JSON)
+### <br> 3. Pre-encoded `Data` (JSON)
 
 Use this when:
 
@@ -159,14 +161,14 @@ let jsonData = try JSONSerialization.data(withJSONObject: ["screen": "LoginView"
 Nexus.debug("Manually encoded event", jsonData)
 ```
 
-## <br> 📍 Destinations
+## <br><br> Destinations
 
 A **NexusDestination** receives events from Nexus.
 * They are a place where you can map, modify, and filter data before sending it to it's final destination.
 * Add as many as you like, even multiple for the same endpoint if you want!
 * The processing of events happen in parallel - so when one destination slows down, the rest won't become blocked.
 
-### Registering Destinations
+### <br> Registering Destinations
 
 The following configuration will route events to all three destinations safely.
 
@@ -178,9 +180,13 @@ Nexus.addDestination(FileLogger("/logs/analytics.log"))
 Nexus.track("User started onboarding", attributes: ["step": "1"])
 ```
 
-## <br> 🧵 Serialization Modes
+## <br><br> Serialization Modes
 
-#### `serialised: true` (default)
+```swift
+Nexus.addDestination(FirebaseDestination(), serialised: false)
+```
+
+#### <br> `serialised: true` (default)
 
 * Events delivered **in order**, one at a time
 * Backed by an internal `actor`
@@ -190,7 +196,7 @@ Nexus.track("User started onboarding", attributes: ["step": "1"])
   * Debugging
   * File or console logs
 
-#### `serialised: false`
+#### <br> `serialised: false`
 
 * Events delivered **concurrently** via `Task.detached`
 * Great for:
@@ -203,7 +209,7 @@ Nexus.track("User started onboarding", attributes: ["step": "1"])
 * Appending to shared arrays or dictionaries
 * Depending on global/static state
 
-## <br> 🎁 Built-In Destinations
+## <br><br> Built-In Destinations
 
 Nexus ships with some production ready destinations out of the box so you can start logging immediately - no setup required.
 
@@ -213,7 +219,7 @@ Nexus ships with some production ready destinations out of the box so you can st
 | `OSLoggerMachineParsable()` | Logs structured data suitable for ingestion and automation            |
 
 
-## <br> ✍️ Creating a Custom Destination
+## <br><br> Creating a Custom Destination
 
 Conform to `NexusDestination`:
 
@@ -225,7 +231,7 @@ public protocol NexusDestination: Sendable {
 
 Use `event.message`, `event.data`, and `event.metadata` to access all event details.
 
-#### Example: Firebase Destination
+#### <br> Example: Firebase Destination
 
 ```swift
 import FirebaseAnalytics
@@ -255,7 +261,7 @@ public struct FirebaseDestination: NexusDestination {
 }
 ```
 
-## <br> ☕️ Filtering
+## <br><br> Filtering
 By default, all events are sent to all NexusDestinations with rich metadata along with your payload, it's up to you how you handle them.
 
 The parameter `routingKey` is provided specifically to filter on a per event basis:
@@ -272,7 +278,7 @@ guard routingKey == "firebase" else { return }
 
 Alternatively, NexusDestinations can also filter or do logic based on any other data as you see fit.
 
-## <br> 🧪 Feature Comparison
+## <br> Feature Comparison
 
 | Capability                             | Nexus | OSLog | Firebase | DIY     |
 | -------------------------------------- | ----- | ----- | -------- | ------- |
@@ -284,12 +290,12 @@ Alternatively, NexusDestinations can also filter or do logic based on any other 
 | Fire-and-forget API                    | ✅     | ❌     | ⚠️        | ❌       |
 | Destination filtering                  | ✅     | ❌     | ❌        | ❌       |
 
-## <br> 📖 Documentation
+## <br><br> Documentation
 
 * Full API reference: *Coming soon*
 * Example app: [`NexusExampleApp.swift`](./NexusExampleApp.swift)
 
-## <br> 🤝 Contributing
+## <br> Contributing
 
 We welcome contributions, feature suggestions, and bug reports.
 
@@ -297,12 +303,14 @@ We welcome contributions, feature suggestions, and bug reports.
 * Prefer actor-based, concurrency-safe implementations
 * Include tests for new features
 
-## <br> 📜 License
+## <br> License
 
 MIT – see [`LICENSE`](./LICENSE)
 
-## <br> 💬 Questions or Feedback?
+## <br> Questions or Feedback?
 
 Open an issue or join a discussion!
+
+<br>
 
 Made with ❤️ by Josh Gallant
