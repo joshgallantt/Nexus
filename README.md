@@ -110,7 +110,7 @@ Nexus.addDestination(MyDestination(), serialised: true)
 
 The `serialised` parameter controls how events are delivered to a destination:
 
-* `true` *(default)*: Events are delivered in order, one at a time, using an internal actor. Use this for destinations that require sequencing (e.g. session tracking, chain-dependent logging).
+* `true` *(default)*: By default, events are delivered in order, one at a time, using an internal actor. Use this for destinations that require sequencing (e.g. session tracking, chain-dependent logging) or if you're not sure.
 
 * `false`: Events are sent concurrently from background tasks. This is ideal for analytics SDKs or non-sequenced logs where performance is key.
   
@@ -128,16 +128,17 @@ Task.detached(priority: .background) {
     await destination.send(...)
 }
 ```
-This means:
-* Events can arrive simultaneously.
-* Each event runs in its own concurrent task.
-* Nexus does not queue, debounce, lock, or isolate access to your destination.
-* Your send(...) implementation may be called from multiple threads at the same time.
-  
-If your destination mutates shared state (e.g., file handles, in-memory buffers, database connections), and it isn't protected, you'll run into:
-* Data races
-* Crashes
-* Corrupted or interleaved logs
+
+✅ Benefits
+* Maximum throughput — events processed in parallel
+* Low latency — no queueing or blocking
+* Ideal for SDKs like Firebase, Sentry, Mixpanel
+* No ordering constraints
+
+⚠️ Your Responsibility
+* send(...) may be called from multiple threads at once
+* You must ensure thread safety inside your destination
+* If your destination writes to shared state (e.g. file, array, DB), use an actor or other synchronization.
 
 ## <br> 🎯 Routing with routingKey
 You can optionally route events to specific destinations by attaching a routingKey:
