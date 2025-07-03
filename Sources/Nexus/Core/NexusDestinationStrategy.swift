@@ -21,21 +21,7 @@ enum NexusDestinationStrategy {
             }
         case .unsynchronised(let destination):
             Task.detached(priority: .background) {
-                await destination.send(
-                    type: event.type,
-                    time: event.time,
-                    deviceModel: event.deviceModel,
-                    osVersion: event.osVersion,
-                    bundleName: event.bundleName,
-                    appVersion: event.appVersion,
-                    fileName: event.fileName,
-                    functionName: event.functionName,
-                    lineNumber: event.lineNumber,
-                    threadName: event.threadName,
-                    message: event.message,
-                    attributes: event.attributes,
-                    routingKey: event.routingKey
-                )
+                await destination.send(event)
             }
         }
     }

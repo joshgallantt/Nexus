@@ -21,38 +21,35 @@ public struct OSLoggerHumanReadable: NexusDestination {
         self.showProperties = showProperties
     }
 
-    public func send(
-        type: NexusEventType,
-        time: Date,
-        deviceModel: String,
-        osVersion: String,
-        bundleName: String,
-        appVersion: String,
-        fileName: String,
-        functionName: String,
-        lineNumber: String,
-        threadName: String,
-        message: String,
-        attributes: [String: String]? = nil,
-        routingKey: String? = nil
-    ) {
-        
+    public func send(_ event: NexusEvent) {
+
+        // Surface the Data we want.
+        let message = event.message
+        let metadata = event.metadata
+
+        let time = metadata.time
+        let emoji = metadata.type.emoji
+        let typeAsString = metadata.type.name
+        let typeAsOSLog = metadata.type.defaultOSLogType
+        let fileName = metadata.fileName
+        let lineNumber = metadata.lineNumber
+        let functionName = metadata.functionName
+        let threadName = metadata.threadName
+
         let trimmedMessage = message.trimmingCharacters(in: .whitespacesAndNewlines)
         let displayMessage = trimmedMessage.isEmpty ? "<no message>" : trimmedMessage
 
         let timestamp = TimeFormatter.shared.shortTimeWithMillis(from: time)
-        let typeEmoji = type.emoji
-        let typeName = type.name.uppercased()
+        let typeEmoji = emoji
 
-        // ignoring deviceModel, osVersion, and routingKey
-        var output = "\(timestamp) \(typeEmoji) \(typeName) \(fileName):\(lineNumber) \(functionName) on \(threadName) - \(displayMessage)"
+        var output = "\(timestamp) \(typeEmoji) \(typeAsString) \(fileName):\(lineNumber) \(functionName) on \(threadName) - \(displayMessage)"
 
-        if showProperties, let attrs = attributes, !attrs.isEmpty {
-            let propsBlock = attrs.map { "\($0.key): \($0.value)" }.joined(separator: "\n")
+        if showProperties, let values = event.data?.values, !values.isEmpty {
+            let propsBlock = values.map { "\($0.key): \($0.value)" }.joined(separator: "\n")
             output += "\n\(propsBlock)"
         }
 
-        logger.log(level: type.defaultOSLogType, "\(output, privacy: .public)")
+        logger.log(level: typeAsOSLog, "\(output, privacy: .public)")
     }
 
 }

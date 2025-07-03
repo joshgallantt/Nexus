@@ -18,52 +18,60 @@ public struct OSLoggerMachineParsable: NexusDestination {
         self.logger = Logger(subsystem: subsystem, category: category)
     }
 
-    public func send(
-        type: NexusEventType,
-        time: Date,
-        deviceModel: String,
-        osVersion: String,
-        bundleName: String,
-        appVersion: String,
-        fileName: String,
-        functionName: String,
-        lineNumber: String,
-        threadName: String,
-        message: String,
-        attributes: [String: String]? = nil,
-        routingKey: String? = nil
-    ) {
-        let trimmed = message.trimmingCharacters(in: .whitespacesAndNewlines)
-        let nonEmpty = trimmed.isEmpty ? "<no message>" : trimmed
+    public func send(_ event: NexusEvent) {
+        let message = event.message
+        let metadata = event.metadata
+
+        // Surface metadata
+        let type = metadata.type
+        let time = metadata.time
+        let deviceModel = metadata.deviceModel
+        let osVersion = metadata.osVersion
+        let bundleName = metadata.bundleName
+        let appVersion = metadata.appVersion
+        let fileName = metadata.fileName
+        let functionName = metadata.functionName
+        let lineNumber = metadata.lineNumber
+        let threadName = metadata.threadName
+        let routingKey = metadata.routingKey
+
+        // Prep values
+        let emoji = type.emoji
+        let typeName = type.name
+        let osLogType = type.defaultOSLogType
+        let timestamp = TimeFormatter.shared.iso8601TimeString(from: time)
+
+        let trimmedMessage = message.trimmingCharacters(in: .whitespacesAndNewlines)
+        let displayMessage = trimmedMessage.isEmpty ? "<no message>" : trimmedMessage
+        let sanitizedMessage = "\"\(sanitizeString(displayMessage))\""
 
         var sections = [
-            "\(type.emoji)\(type.name)",
-            sanitizeString(TimeFormatter.shared.iso8601TimeString(from: time)),
-            sanitizeString(bundleName),
-            sanitizeString(appVersion),
-            "\(sanitizeString(fileName)):\(lineNumber)",
-            sanitizeString(threadName),
-            sanitizeString(functionName),
-            sanitizeString(deviceModel),
-            sanitizeString(osVersion),
-            "\"\(sanitizeString(nonEmpty))\""
+            "\(emoji)\(typeName)",
+            timestamp,
+            bundleName,
+            appVersion,
+            "\(fileName):\(lineNumber)",
+            threadName,
+            functionName,
+            deviceModel,
+            osVersion,
+            sanitizedMessage
         ]
-        
+
         if let routingKey {
-            sections.append("routingKey=\(sanitizeString(routingKey))")
+            sections.append("routingKey=\(routingKey)")
         }
 
-        if let attrs = attributes, !attrs.isEmpty {
-            let kvs = attrs
-                .map { sanitizeString($0.key) + "=" + sanitizeString($0.value) }
+        if let values = event.data?.values, !values.isEmpty {
+            let keyValuePairs = values
+                .map { "\(sanitizeString($0.key))=\(sanitizeString($0.value))" }
                 .joined(separator: ",")
-            sections.append(kvs)
+            sections.append(keyValuePairs)
         }
 
         let output = sections.joined(separator: "|")
-        logger.log(level: type.defaultOSLogType, "\(output, privacy: .public)")
+        logger.log(level: osLogType, "\(output, privacy: .public)")
     }
-
     private func sanitizeString(_ input: String) -> String {
         input
             .replacingOccurrences(of: "\\", with: "\\\\")
@@ -76,8 +84,6 @@ public struct OSLoggerMachineParsable: NexusDestination {
             .replacingOccurrences(of: "=", with: "\\=")
     }
 }
-
-import Foundation
 
 struct TimeFormatter: Sendable {
     static let shared = TimeFormatter()

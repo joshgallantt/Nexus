@@ -14,13 +14,13 @@ struct NexusExampleApp: App {
 
         Nexus.addDestination(OSLoggerHumanReadable(), serialised: true)
         
-        Nexus.sendEvent("All our base are under attack!", .track)
-        Nexus.sendEvent("All our base are under attack!", .debug)
-        Nexus.sendEvent("All our base are under attack!", .info)
-        Nexus.sendEvent("All our base are under attack!", .notice)
-        Nexus.sendEvent("All our base are under attack!", .warning)
-        Nexus.sendEvent("All our base are under attack!", .error)
-        Nexus.sendEvent("All our base are under attack!", .fault)
+        Nexus.track("All our base are under attack!")
+        Nexus.debug("All our base are under attack!")
+        Nexus.info("All our base are under attack!")
+        Nexus.notice("All our base are under attack!")
+        Nexus.warning("All our base are under attack!")
+        Nexus.error("All our base are under attack!")
+        Nexus.fault("All our base are under attack!")
 
 //        Nexus.sendEvent(
 //            "User tapped login button",
