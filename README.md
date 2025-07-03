@@ -118,7 +118,7 @@ The `serialised` parameter controls **how events are delivered** to the destinat
 * Use this mode when:
 
   * Event **sequencing matters** (e.g. session tracking, chain-dependent logging).
-  * You want **thread-aware logging**, ideal for **debugging concurrency issues** — logs retain the originating thread name and are delivered in order.
+  * You want **thread-aware logging**, ideal for **debugging concurrency issues** - logs retain the originating thread name and are delivered in order.
 
 
 ### ⚡️ `serialised: false`
@@ -139,8 +139,8 @@ The `serialised` parameter controls **how events are delivered** to the destinat
 
 ### ✅ Benefits of `serialised: false`
 
-* **Maximum throughput** — parallel event processing
-* **Low latency** — no queuing or blocking
+* **Maximum throughput** - parallel event processing
+* **Low latency** - no queuing or blocking
 * **No ordering constraints**
 
 ### ⚠️ Your Responsibility (when `serialised: false`)
@@ -148,7 +148,7 @@ The `serialised` parameter controls **how events are delivered** to the destinat
 * `send(...)` may be called from **multiple threads simultaneously**
 * You **must ensure thread safety** within your destination
 
->Note: If your destination accesses shared state (e.g. writes to a file, array, or database), protect it using an `actor` or another form of synchronization (e.g. locks or `DispatchQueue`).
+>💡 If your destination accesses shared state (e.g. writes to a file, array, or database), protect it using an `actor` or another form of synchronization (e.g. locks or `DispatchQueue`).
 
 ## <br> 🎯 Routing with routingKey
 You can optionally route events to specific destinations by attaching a routingKey:
@@ -163,14 +163,14 @@ Destinations can opt in to specific keys:
 guard routingKey == "analytics" else { return }
 ```
 
-This allows you to send certain events to Firebase, others to file loggers, and others to the console—all from the same call site.
+This allows you to send certain events to Firebase, others to file loggers, and others to the console - all from the same call site.
 
->Note: routingKey is just a convention. Destinations can inspect and filter on any event metadata — such as type, attributes, fileName, or even threadName.
+>💡 routingKey is just a convention. Destinations can inspect and filter on any event metadata - such as type, attributes, fileName, or even threadName.
 You’re in full control of how events are handled. Hint: Maybe a analytics desination only cares about tracking event types 😉
 
 ## <br> 🪐 Custom Destinations
 
-Create your own by conforming to `NexusDestination`. Use as little or as much data as you'd like before sending it off to wherever you please\!
+Create your own by conforming to `NexusDestination`. Use as little or as much data as you'd like before sending it off to wherever you please!
 
 ```swift
 public protocol NexusDestination: Sendable {
@@ -196,7 +196,7 @@ public protocol NexusDestination: Sendable {
 
 * You can filter with routingKey or any data.
 
-* All events are guaranteed to be delivered safely—either sequentially or concurrently depending on configuration.
+* All events are guaranteed to be delivered safely-either sequentially or concurrently depending on configuration.
 
 ## <br> 🔥 Example Firebase Destination
 ```swift
@@ -242,6 +242,13 @@ public struct FirebaseDestination: NexusDestination {
 }
 ```
 
+## <br> 🔋 Batteries Included
+Nexus ships with some production ready destinations out of the box so you can start logging immediately - no setup required.
+
+| Destination               | Description                                                                             |
+| ------------------------- | --------------------------------------------------------------------------------------- |
+| `OSLoggerHumanReadable()` | Outputs logs to Apple's Unified Logging System in a human-readable format             |
+| `OSLoggerMachineParsable()`    | Emits structured, machine-readable logs to Apple's Unified Logging System |
 
 ## <br> 📖 Documentation
 
@@ -259,10 +266,10 @@ Contributions, bug reports, and feature requests are welcome\!
 
 ## <br> 📜 License
 
-MIT License — see `LICENSE` file.
+MIT License - see `LICENSE` file.
 
 ## <br> 💬 Questions, Comments, Concerns?
 
 Open an issue or start a discussion\!
 
-— Made with ❤️ by Josh Gallant
+- Made with ❤️ by Josh Gallant
