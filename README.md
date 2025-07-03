@@ -67,10 +67,10 @@ Logging and analytics in Swift are fragmented, inconsistent, and often bolted on
 
 Nexus is built with these core tenets:
 
-* **Composability over hardcoding** – define your event once, route it anywhere: console, analytics, files, crash logs, and more.
+* **Composability over hardcoding** – define your event once, route it anywhere now.. or later: console, analytics, files, etc.
+* **Scalable architecture** – from side-projects to production apps, Nexus is designed to grow with your needs as requirements change. Add, swap, or remove destinations and logic without touching call sites.
 * **First-class concurrency** – every part of Nexus is actor-based and thread-safe by default. Fire-and-forget, even from async contexts.
-* **Stays out of your way** – drop-in logging, zero-config defaults, and Swift-native ergonomics.
-* **Scalable architecture** – from side-projects to production apps, Nexus grows with your needs. Add new destinations their logic without touching call sites.
+* **Stays out of your way** – Doesn't try to do too much, or force an opinion. You control the destinations.
 * **No Dependancies** – Ever.
 
 
