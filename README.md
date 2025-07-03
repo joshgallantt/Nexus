@@ -102,42 +102,52 @@ Nexus.track("User started onboarding", attributes: ["step": "1"])
 
 That’s it. Events are sent to all destinations concurrently and safely. No juggling SDKs or writing glue code. No threading bugs.
 
-## <br> 🧵 Event Serialization
+## 🧵 Event Serialization
+
+When adding a destination using:
 
 ```swift
 Nexus.addDestination(MyDestination(), serialised: true)
 ```
 
-The `serialised` parameter controls how events are delivered to a destination:
+The `serialised` parameter controls **how events are delivered** to the destination.
 
-* `true` *(default)*: By default, events are delivered in order, one at a time, using an internal actor. Use this for destinations that require sequencing (e.g. session tracking, chain-dependent logging) or if you're not sure.
+### 🔒 `serialised: true` (default)
 
-* `false`: Events are sent concurrently from background tasks. This is ideal for analytics SDKs or non-sequenced logs where performance is key.
-  
-**⚠️ With great power, comes great responsibility. For non-serialised destinations, you are responsible for ensuring thread-safety in your implementation.**
+* Events are **delivered in order**, one at a time, using an **internal actor**.
+* Use this mode when:
 
-When you add a destination like this:
+  * Event **sequencing matters** (e.g. session tracking, chain-dependent logging).
+  * You're unsure if your destination is thread-safe.
 
-```swift
-Nexus.addDestination(MyDestination(), serialised: false)
-```
-...Nexus dispatches events like this:
+### ⚡️ `serialised: false`
 
-```swift
-Task.detached(priority: .background) {
-    await destination.send(...)
-}
-```
+* Events are dispatched **concurrently** from **background tasks**:
 
-✅ Benefits
-* Maximum throughput — events processed in parallel
-* Low latency — no queueing or blocking
-* No ordering constraints
+  ```swift
+  Task.detached(priority: .background) {
+      await destination.send(...)
+  }
+  ```
 
-⚠️ Your Responsibility
-* send(...) may be called from multiple threads at once
-* You must ensure thread safety inside your destination
-* If your destination writes to shared state (e.g. file, array, DB), use an actor or other synchronization.
+* Ideal for:
+
+  * High-throughput analytics SDKs
+  * Logging where **order doesn't matter**
+  * Any use case where **performance** is critical
+
+### ✅ Benefits of `serialised: false`
+
+* **Maximum throughput** — parallel event processing
+* **Low latency** — no queuing or blocking
+* **No ordering constraints**
+
+### ⚠️ Your Responsibility (when `serialised: false`)
+
+* `send(...)` may be called from **multiple threads simultaneously**
+* You **must ensure thread safety** within your destination
+
+> If your destination accesses shared state (e.g. writes to a file, array, or database), protect it using an `actor` or another form of synchronization (e.g. locks or `DispatchQueue`).
 
 ## <br> 🎯 Routing with routingKey
 You can optionally route events to specific destinations by attaching a routingKey:
@@ -153,6 +163,10 @@ guard routingKey == "analytics" else { return }
 ```
 
 This allows you to send certain events to Firebase, others to file loggers, and others to the console—all from the same call site.
+
+>🧠 Note: routingKey is just a convention.
+>Destinations can inspect and filter on any event metadata — such as type, attributes, fileName, or even threadName.
+You’re in full control of how events are handled.
 
 ## <br> 🪐 Custom Destinations
 
@@ -180,7 +194,7 @@ public protocol NexusDestination: Sendable {
 
 * You’ll receive detailed metadata.
 
-* You can filter with routingKey.
+* You can filter with routingKey or any data.
 
 * All events are guaranteed to be delivered safely—either sequentially or concurrently depending on configuration.
 
