@@ -164,6 +164,8 @@ public struct FirebaseDestination: NexusDestination {
         attributes: [String: String]? = nil,
         routingKey: String? = nil
     ) {
+        guard routingKey == "firebase" else { return }
+
         var eventParams = attributes ?? [:]
         eventParams["type"] = type.name
         eventParams["timestamp"] = ISO8601DateFormatter().string(from: time)
@@ -176,11 +178,9 @@ public struct FirebaseDestination: NexusDestination {
         eventParams["lineNumber"] = lineNumber
         eventParams["threadName"] = threadName
         eventParams["message"] = message
-        if let routingKey = routingKey {
-            eventParams["routingKey"] = routingKey
-        }
+        eventParams["routingKey"] = routingKey
 
-        Analytics.logEvent("nexus_event", parameters: eventParams)
+        Analytics.logEvent(message, parameters: eventParams)
     }
 }
 ```
