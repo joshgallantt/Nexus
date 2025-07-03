@@ -112,17 +112,70 @@ Nexus.track("User signed up", ["method": "email"])
 
 Whether you're debug logging to the console in dev, sending analytics to Firebase in prod, or writing logs to disk in CI — Nexus is for you.
 
-## <br> 📍 NexusDestinations
+## <br> 📦 Optional Payloads
+
+Nexus supports **three styles of payloads** for maximum flexibility depending on your needs:
+
+### 1. `Dictionary<String, String>`
+
+Use this when:
+
+* You have simple, flat key-value data
+* You don’t need to encode nested types or complex structures
+
+```swift
+Nexus.info("User tapped login", ["screen": "LoginView", "button": "submit"])
+```
+
+### 2. `Encodable` Types
+
+Use this when:
+
+* You want to send structured or nested data
+* You want Swift type-safety and compiler assistance
+* You prefer working with models or nested models instead of raw dictionaries
+* If encoding fails, Nexus will fall back and emit an error message with the reason embedded in the event.
+
+```swift
+struct LoginEvent: Codable {
+    let screen: String
+    let button: String
+    let userID: String
+}
+
+Nexus.track("Login event", LoginEvent(screen: "LoginView", button: "submit", userID: "abc123"))
+```
+
+### 3. Pre-encoded `Data` (JSON)
+
+Use this when:
+
+* You’re receiving payloads from another service or layer that already encoded it
+* You want full control over the encoding
+* You want to bypass `Encodable` or avoid model creation
+
+```swift
+let jsonData = try JSONSerialization.data(withJSONObject: ["screen": "LoginView"], options: [])
+Nexus.debug("Manually encoded event", jsonData)
+```
+
+## <br> 📍 Destinations
 
 A **NexusDestination** receives events from Nexus.
 * They are a place where you can map, modify, and filter data before sending it to it's final destination.
 * Add as many as you like, even multiple for the same endpoint if you want!
 * The processing of events happen in parallel - so when one destination slows down, the rest won't become blocked.
 
-### Registering a Destination
+### Registering Destinations
+
+The following configuration will route events to all three destinations safely.
 
 ```swift
-Nexus.addDestination(MyDestination(), serialised: true)
+Nexus.addDestination(OSLoggerHumanReadable())
+Nexus.addDestination(FirebaseDestination(), serialised: false)
+Nexus.addDestination(FileLogger("/logs/analytics.log"))
+
+Nexus.track("User started onboarding", attributes: ["step": "1"])
 ```
 
 ## <br> 🧵 Serialization Modes
@@ -159,27 +212,46 @@ Nexus ships with some production ready destinations out of the box so you can st
 | `OSLoggerHumanReadable()`   | Logs to Apple’s unified logging system in a developer-friendly format |
 | `OSLoggerMachineParsable()` | Logs structured data suitable for ingestion and automation            |
 
+
 ## <br> ✍️ Creating a Custom Destination
 
-Conform to the `NexusDestination` protocol:
+Conform to `NexusDestination`:
 
 ```swift
 public protocol NexusDestination: Sendable {
-    func send(
-        type: NexusEventType,
-        time: Date,
-        deviceModel: String,
-        osVersion: String,
-        bundleName: String,
-        appVersion: String,
-        fileName: String,
-        functionName: String,
-        lineNumber: String,
-        threadName: String,
-        message: String,
-        attributes: [String: String]?,
-        routingKey: String?
-    ) async
+    func send(_ event: NexusEvent) async
+}
+```
+
+Use `event.message`, `event.data`, and `event.metadata` to access all event details.
+
+#### Example: Firebase Destination
+
+```swift
+import FirebaseAnalytics
+import Nexus
+
+public struct FirebaseDestination: NexusDestination {
+    public init() {}
+
+    public func send(_ event: NexusEvent) async {
+        guard event.routingKey == "firebase" else { return }
+
+        var params = event.data ?? [:]
+        let meta = event.metadata
+
+        params["type"] = meta.type.name
+        params["timestamp"] = ISO8601DateFormatter().string(from: meta.time)
+        params["device"] = meta.deviceModel
+        params["os"] = meta.osVersion
+        params["appVersion"] = meta.appVersion
+        params["thread"] = meta.threadName
+        params["file"] = meta.fileName
+        params["function"] = meta.functionName
+        params["line"] = meta.lineNumber
+
+        Analytics.logEvent(event.message, parameters: params)
+    }
 }
 ```
 
@@ -199,40 +271,6 @@ guard routingKey == "firebase" else { return }
 ```
 
 Alternatively, NexusDestinations can also filter or do logic based on any other data as you see fit.
-
-## <br> 🔥 Example: Firebase Destination
-
-```swift
-import FirebaseAnalytics
-import Nexus
-
-public struct FirebaseDestination: NexusDestination {
-    public init() {}
-
-    public func send(...) async {
-        guard routingKey == "firebase" else { return }
-
-        var params = attributes ?? [:]
-        params["type"] = type.name
-        params["timestamp"] = ISO8601DateFormatter().string(from: time)
-        params["message"] = message
-        // Add more metadata as needed
-
-        Analytics.logEvent(message, parameters: params)
-    }
-}
-```
-
-## <br> 🧱 Example: Multiple Destinations
-The following configuration will route events to all three destinations safely.
-
-```swift
-Nexus.addDestination(OSLoggerHumanReadable())
-Nexus.addDestination(FirebaseDestination(), serialised: false)
-Nexus.addDestination(FileLogger("/logs/analytics.log"))
-
-Nexus.track("User started onboarding", attributes: ["step": "1"])
-```
 
 ## <br> 🧪 Feature Comparison
 
