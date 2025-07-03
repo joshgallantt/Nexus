@@ -62,7 +62,7 @@ Nexus.track("User signed up", attributes: ["method": "email"])
 
 > Whether you're logging to the console in dev, sending analytics to Firebase in prod, or writing logs to disk in CI — Nexus adapts.
 
-## 🚀 How to Use
+## <br> 🚀 How to Use
 
 ### 1. Register Destinations
 
@@ -122,7 +122,7 @@ Examples: a logger, analytics backend, crash tracker, file writer, etc.
 Nexus.addDestination(MyDestination(), serialised: true)
 ```
 
-### Serialization Modes
+## <br> 🧵 Serialization Modes
 
 #### `serialised: true` (default)
 
@@ -200,10 +200,11 @@ guard routingKey == "firebase" else { return }
 
 Alternatively, Destinations can also filter by event type, metadata, thread name, or any other data as you see fit.
 
-## 🔥 Example: Firebase Destination
+## <br> 🔥 Example: Firebase Destination
 
 ```swift
 import FirebaseAnalytics
+import Nexus
 
 public struct FirebaseDestination: NexusDestination {
     public init() {}
@@ -222,7 +223,7 @@ public struct FirebaseDestination: NexusDestination {
 }
 ```
 
-## 🧵 Example: Console + Firebase + File
+## <br> 🧱 Example: Console + Firebase + File
 
 ```swift
 Nexus.addDestination(OSLoggerHumanReadable())
@@ -234,7 +235,7 @@ Nexus.track("User started onboarding", attributes: ["step": "1"])
 
 This configuration will route events to all three destinations concurrently and safely.
 
-## 🧪 Feature Comparison
+## <br> 🧪 Feature Comparison
 
 | Capability                             | Nexus | OSLog | Firebase | DIY     |
 | -------------------------------------- | ----- | ----- | -------- | ------- |
@@ -246,12 +247,12 @@ This configuration will route events to all three destinations concurrently and 
 | Fire-and-forget API                    | ✅     | ❌     | ⚠️        | ❌       |
 | Destination filtering                  | ✅     | ❌     | ❌        | ❌       |
 
-## 📖 Documentation
+## <br> 📖 Documentation
 
 * Full API reference: *Coming soon*
 * Example app: [`NexusExampleApp.swift`](./NexusExampleApp.swift)
 
-## 🤝 Contributing
+## <br> 🤝 Contributing
 
 We welcome contributions, feature suggestions, and bug reports.
 
@@ -259,11 +260,11 @@ We welcome contributions, feature suggestions, and bug reports.
 * Prefer actor-based, concurrency-safe implementations
 * Include tests for new features
 
-## 📜 License
+## <br> 📜 License
 
 MIT – see [`LICENSE`](./LICENSE)
 
-## 💬 Questions or Feedback?
+## <br> 💬 Questions or Feedback?
 
 Open an issue or join a discussion!
 
