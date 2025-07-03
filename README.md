@@ -70,7 +70,7 @@ Nexus is built with these core tenets:
 * **Composability over hardcoding** – define your event once, route it anywhere: console, analytics, files, crash logs, and more.
 * **First-class concurrency** – every part of Nexus is actor-based and thread-safe by default. Fire-and-forget, even from async contexts.
 * **Stays out of your way** – drop-in logging, zero-config defaults, and Swift-native ergonomics.
-* **Scalable architecture** – from side-projects to production apps, Nexus grows with your needs. Add new destinations, log levels, or routing keys without touching call sites.
+* **Scalable architecture** – from side-projects to production apps, Nexus grows with your needs. Add new destinations their logic without touching call sites.
 * **No Dependancies** – Ever.
 
 
