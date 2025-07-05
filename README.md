@@ -120,7 +120,7 @@ Whether you're debug logging to the console in dev, sending analytics to Firebas
 
 Nexus supports **three styles of payloads** for maximum flexibility depending on your needs:
 
-### <br> 1. `Dictionary<String, String>`
+### <br> 1. `Dictionary<String, Any?>`
 
 Use this when:
 
