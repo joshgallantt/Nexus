@@ -12,7 +12,7 @@ import Nexus
 struct NexusExampleApp: App {
     init() {
 
-        Nexus.addDestination(OSLoggerHumanReadable(), serialised: true)
+        Nexus.addDestination(OSLoggerHumanReadable(showData: true), serialised: true)
         
         Nexus.track("All our base are under attack!")
         Nexus.debug("All our base are under attack!")
@@ -20,7 +20,7 @@ struct NexusExampleApp: App {
         Nexus.notice("All our base are under attack!")
         Nexus.warning("All our base are under attack!")
         Nexus.error("All our base are under attack!")
-        Nexus.fault("All our base are under attack!")
+        Nexus.fault("All our base are under attack!", ["test" : "some value", "test2" : "some other value"])
 
 //        Nexus.sendEvent(
 //            "User tapped login button",

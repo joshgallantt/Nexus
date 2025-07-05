@@ -47,6 +47,7 @@ public extension Nexus {
     ///   - message: The debug message.
     ///   - routingKey: Optional routing key.
     ///   - data: Any encodable type to be JSON-encoded before logging.
+    @_disfavoredOverload
     static func debug<T: Encodable>(_ message: String, routingKey: String? = nil, _ data: T, file: String = #fileID, function: String = #function, line: Int = #line) {
         sendEvent(message, .debug, routingKey: routingKey, encodable: data, file: file, function: function, line: line)
     }
@@ -82,6 +83,7 @@ public extension Nexus {
     ///   - message: The tracking message.
     ///   - routingKey: Optional routing key.
     ///   - data: Encodable payload for analytics.
+    @_disfavoredOverload
     static func track<T: Encodable>(_ message: String, routingKey: String? = nil, _ data: T, file: String = #fileID, function: String = #function, line: Int = #line) {
         sendEvent(message, .track, routingKey: routingKey, encodable: data, file: file, function: function, line: line)
     }
@@ -121,6 +123,7 @@ public extension Nexus {
     ///   - message: Info message.
     ///   - routingKey: Optional routing key.
     ///   - data: Encodable context.
+    @_disfavoredOverload
     static func info<T: Encodable>(_ message: String, routingKey: String? = nil, _ data: T, file: String = #fileID, function: String = #function, line: Int = #line) {
         sendEvent(message, .info, routingKey: routingKey, encodable: data, file: file, function: function, line: line)
     }
@@ -160,6 +163,7 @@ public extension Nexus {
     ///   - message: The message.
     ///   - routingKey: Optional routing key.
     ///   - data: Encodable event context.
+    @_disfavoredOverload
     static func notice<T: Encodable>(_ message: String, routingKey: String? = nil, _ data: T, file: String = #fileID, function: String = #function, line: Int = #line) {
         sendEvent(message, .notice, routingKey: routingKey, encodable: data, file: file, function: function, line: line)
     }
@@ -198,6 +202,7 @@ public extension Nexus {
     ///   - message: Warning message.
     ///   - routingKey: Optional routing key.
     ///   - payload: Context object.
+    @_disfavoredOverload
     static func warning<T: Encodable>(_ message: String, routingKey: String? = nil, _ data: T, file: String = #fileID, function: String = #function, line: Int = #line) {
         sendEvent(message, .warning, routingKey: routingKey, encodable: data, file: file, function: function, line: line)
     }
@@ -238,6 +243,7 @@ public extension Nexus {
     ///   - message: The message.
     ///   - routingKey: Optional routing key.
     ///   - data: Encodable payload.
+    @_disfavoredOverload
     static func error<T: Encodable>(_ message: String, routingKey: String? = nil, _ data: T, file: String = #fileID, function: String = #function, line: Int = #line) {
         sendEvent(message, .error, routingKey: routingKey, encodable: data, file: file, function: function, line: line)
     }
@@ -277,6 +283,7 @@ public extension Nexus {
     ///   - message: The message.
     ///   - routingKey: Optional routing key.
     ///   - data: Encodable fault context.
+    @_disfavoredOverload
     static func fault<T: Encodable>(_ message: String, routingKey: String? = nil, _ data: T, file: String = #fileID, function: String = #function, line: Int = #line) {
         sendEvent(message, .fault, routingKey: routingKey, encodable: data, file: file, function: function, line: line)
     }
