@@ -12,9 +12,10 @@ import Nexus
 struct NexusExampleApp: App {
     init() {
         // Logging setup
-        Nexus.addDestination(OSLoggerHumanReadable(showData: true), serialised: true)
+        #if DEBUG
+        Nexus.addDestination(NexusDebugLog(showData: true), serialised: true)
+        #endif
 
-        // The following 7 logs are intentionally single line (simple message only, no data/context/task)
         trackUserLanding()
         fetchItemsFromAPI()
         enableNotifications()
@@ -23,9 +24,9 @@ struct NexusExampleApp: App {
         attemptSavingPreferences()
         unsafeForceUnwrap()
 
-        exampleJSONObjects()
-        exampleEncodable()
         exampleKeyValuePairs()
+        exampleEncodable()
+        exampleJSONObjects()
     }
 
     var body: some Scene {}
@@ -61,6 +62,8 @@ private func unsafeForceUnwrap() {
     Nexus.fault("Why are you force unwrapping?")
 }
 
+// MARK: - Example Key-Value Pairs
+
 private func exampleKeyValuePairs() {
     Nexus.debug("Key-value pairs Example", routingKey: "routingkey", [
         "count": 5,
@@ -72,16 +75,8 @@ private func exampleKeyValuePairs() {
     ])
 }
 
-// MARK: - Context model
 
-struct UserEventContext: Encodable {
-    let userId: Int
-    let name: String
-    let isPremium: Bool
-    let createdAt: Date
-}
-
-// MARK: - Test JSON Payloads
+// MARK: - Example JSON Payloads
 
 private func exampleJSONObjects() {
     let json: [String: Any] = [
@@ -123,7 +118,7 @@ private func exampleJSONObjects() {
     }
 }
 
-// MARK: - Three-Level Nested Encodable Types
+// MARK: - Example Three-Level Nested Encodable Types
 
 struct UserProfile: Encodable {
     let email: String

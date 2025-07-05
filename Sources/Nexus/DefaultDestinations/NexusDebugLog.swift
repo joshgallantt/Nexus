@@ -8,14 +8,14 @@
 import Foundation
 import os
 
-public struct OSLoggerHumanReadable: NexusDestination {
+public struct NexusDebugLog: NexusDestination {
     private let logger: Logger
     private let showData: Bool
     private let maxLogLength: Int
 
     public init(
         subsystem: String = Bundle.main.bundleIdentifier ?? "Unknown Bundle",
-        category: String = "NexusLogger",
+        category: String = "Nexus Debug Log",
         showData: Bool = true,
         maxLogLength: Int = 1000
     ) {
@@ -55,7 +55,6 @@ public struct OSLoggerHumanReadable: NexusDestination {
     private func formatDataBlock(from event: NexusEvent, fittingIn limit: Int) -> [String]? {
         guard showData else { return nil }
 
-        // Merge routing key as a top-level property if present
         if let jsonData = event.data?.json {
             if var dict = (try? JSONSerialization.jsonObject(with: jsonData)) as? [String: Any] {
                 if let routingKey = event.metadata.routingKey {

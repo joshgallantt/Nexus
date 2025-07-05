@@ -61,7 +61,7 @@ public struct OSLoggerMachineParsable: NexusDestination {
                 .map { "\(NexusDataFormatter.sanitizeString($0.key))=\(sanitizeAndTruncate($0.value, limit: maxValueLength))" }
                 .sorted()
                 .joined(separator: ",")
-            fields.append(keyValuePairs) // 11+
+            fields.append(keyValuePairs)
         }
 
         return fields.joined(separator: "|")
