@@ -131,7 +131,7 @@ Use this when:
 Nexus.info("User tapped login", ["screen": "LoginView", "button": "submit"])
 ```
 
-Example output using one of our provided destinations, OSLoggerHumanReadable():
+Example output using one of our provided destinations:
 
 <img src="NexusExample/images/example-kvp.png" alt="App Screenshot" width="10000" />
 
@@ -154,7 +154,7 @@ struct LoginEvent: Codable {
 Nexus.track("Login event", LoginEvent(screen: "LoginView", button: "submit", userID: "abc123"))
 ```
 
-Example output using one of our provided destinations, OSLoggerHumanReadable():
+Example output using one of our provided destinations:
 
 <img src="NexusExample/images/example-encodable.png" alt="App Screenshot" width="10000" />
 
@@ -171,7 +171,7 @@ let jsonData = try JSONSerialization.data(withJSONObject: ["screen": "LoginView"
 Nexus.debug("Manually encoded event", jsonData)
 ```
 
-Example output using one of our provided destinations, OSLoggerHumanReadable():
+Example output using one of our provided destinations:
 
 <img src="NexusExample/images/example-json.png" alt="App Screenshot" width="10000" />
 
