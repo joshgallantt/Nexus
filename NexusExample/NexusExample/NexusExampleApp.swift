@@ -26,7 +26,7 @@ struct NexusExampleApp: App {
         // JSON test payloads
         testJSONObject()
         testJSONArray()
-        testThreeDeepEncodable()
+        exampleEncodable()
         testKeyValuePairs()
     }
 
@@ -147,7 +147,7 @@ struct UserEvent: Encodable {
     let user: User
 }
 
-private func testThreeDeepEncodable() {
+private func exampleEncodable() {
     let event = UserEvent(
         active: true,
         sessionId: "abc123",
