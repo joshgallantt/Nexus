@@ -13,7 +13,7 @@ struct NexusExampleApp: App {
     init() {
         // Setup Logging Destination
         #if DEBUG
-        let setupLogger = NexusDebugLog(showData: true, logOnly: [.debug, .warning, .error])
+        let setupLogger = NexusDebugLog()
         Nexus.addDestination(setupLogger, serialised: true)
         #endif
 

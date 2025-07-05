@@ -15,7 +15,7 @@
 
 
 <p align="center">
-<img src="NexusExample/images/example-basic.png" alt="App Screenshot" width="10000"/>
+<img src="NexusExample/images/example-metadata.png" alt="App Screenshot" width="10000"/>
 </p>
 
 ## <br><br> What is Nexus?
