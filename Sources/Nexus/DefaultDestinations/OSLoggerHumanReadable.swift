@@ -31,21 +31,15 @@ public struct OSLoggerHumanReadable: NexusDestination {
         let headerLine = formatHeaderLine(from: event, message: message)
         var dataLines = formatDataBlock(from: event, fittingIn: maxLogLength - headerLine.count) ?? []
 
-        if let routingKey = event.metadata.routingKey {
-            let formatted = "routing key: \"\(routingKey)\""
-            dataLines.insert("└─ \(formatted)", at: 0)
-        }
+        let output: String = dataLines.isEmpty
+            ? headerLine
+            : ([headerLine] + dataLines).joined(separator: "\n")
 
-        var fullMessage = headerLine
-        if !dataLines.isEmpty {
-            fullMessage += "\n" + dataLines.joined(separator: "\n")
-        }
+        let truncated = output.count > maxLogLength
+            ? String(output.prefix(maxLogLength)) + "\n└─ … [truncated]"
+            : output
 
-        let output = fullMessage.count > maxLogLength
-            ? String(fullMessage.prefix(maxLogLength)) + "\n└─ … [truncated]"
-            : fullMessage
-
-        logger.log(level: event.metadata.type.defaultOSLogType, "\(output, privacy: .public)")
+        logger.log(level: event.metadata.type.defaultOSLogType, "\(truncated, privacy: .public)")
     }
 
     private func formatHeaderLine(from event: NexusEvent, message: String) -> String {
@@ -61,12 +55,29 @@ public struct OSLoggerHumanReadable: NexusDestination {
     private func formatDataBlock(from event: NexusEvent, fittingIn limit: Int) -> [String]? {
         guard showData else { return nil }
 
-        if let values = event.data?.values {
+        // Merge routing key as a top-level property if present
+        if let jsonData = event.data?.json {
+            if var dict = (try? JSONSerialization.jsonObject(with: jsonData)) as? [String: Any] {
+                if let routingKey = event.metadata.routingKey {
+                    dict["routing key"] = routingKey
+                }
+                return NexusDataFormatter.formatLines(from: dict, limit: limit)
+            }
+            if let arr = (try? JSONSerialization.jsonObject(with: jsonData)) as? [Any] {
+                var root: [String: Any] = ["data": arr]
+                if let routingKey = event.metadata.routingKey {
+                    root["routing key"] = routingKey
+                }
+                return NexusDataFormatter.formatLines(from: root, limit: limit)
+            }
+        } else if var values = event.data?.values as? [String: Any] {
+            if let routingKey = event.metadata.routingKey {
+                values["routing key"] = routingKey
+            }
             return NexusDataFormatter.formatLines(from: values, limit: limit)
-        } else if let jsonData = event.data?.json {
-            return NexusDataFormatter.formatLines(from: jsonData, limit: limit)
+        } else if let routingKey = event.metadata.routingKey {
+            return NexusDataFormatter.formatLines(from: ["routing key": routingKey], limit: limit)
         }
-
         return nil
     }
 }

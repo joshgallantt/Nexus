@@ -89,19 +89,33 @@ struct UserEventContext: Encodable {
 // MARK: - Test JSON Payloads
 
 private func testJSONObject() {
-    let payload: [String: Any] = [
-        "sessionId": "abc123",
+    let json: [String: Any] = [
         "active": true,
-        "timestamp": "2025-07-05T16:42:00Z",
         "features": ["logging", "analytics"],
+        "sessionId": "abc123",
+        "timestamp": "2025-07-05T16:42:00Z",
         "user": [
             "id": 1,
-            "name": "Ada Lovelace"
+            "name": "Ada Lovelace",
+            "roles": ["admin", "developer"],
+            "profile": [
+                "email": "ada@example.com",
+                "verified": true
+            ]
+        ],
+        "tags": [],
+        "config": [
+            "env": "prod",
+            "flags": [
+                "debug": false,
+                "beta": true
+            ]
         ]
     ]
 
-    if let data = try? JSONSerialization.data(withJSONObject: payload, options: []) {
-        Nexus.debug("Top-level object JSON", data)
+
+    if let data = try? JSONSerialization.data(withJSONObject: json, options: []) {
+        Nexus.debug("Top-level object JSON", routingKey: "routingkey", data)
     }
 }
 
@@ -112,6 +126,6 @@ private func testJSONArray() {
     ]
 
     if let data = try? JSONSerialization.data(withJSONObject: array, options: []) {
-        Nexus.debug("Top-level array JSON", data)
+        Nexus.debug("Top-level array JSON", routingKey: "routingkey", data)
     }
 }

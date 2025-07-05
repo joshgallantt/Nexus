@@ -8,29 +8,27 @@
 import Foundation
 
 public enum NexusDataFormatter {
-    /// Formats a dictionary, array, or general JSON root object into readable lines using ├─ / └─.
     public static func formatLines(from any: Any?, limit: Int = .max) -> [String]? {
         guard let any else { return nil }
 
         var lines: [String] = []
-        formatRecursive(any, prefix: "", isLast: true, output: &lines)
+        formatRecursive(any, key: nil, parentsLast: [], isLast: true, output: &lines, isRoot: true)
 
         var result: [String] = []
         var total = 0
         for line in lines {
             let next = line + "\n"
             if total + next.count > limit {
-                result.append("… [truncated]")
+                result.append("└─ … [truncated]")
                 break
             }
             result.append(line)
             total += next.count
         }
 
-        return result.isEmpty ? nil : result
+        return result
     }
 
-    /// Deserializes JSON `Data` and formats it into pretty lines with visual prefixes.
     public static func formatLines(from jsonData: Data?, limit: Int = .max) -> [String]? {
         guard let jsonData else { return nil }
 
@@ -39,6 +37,85 @@ public enum NexusDataFormatter {
             return formatLines(from: obj, limit: limit)
         } catch {
             return ["<unreadable json: \(error.localizedDescription)>"]
+        }
+    }
+
+    // MARK: - Recursive Formatting
+
+    private static func formatRecursive(
+        _ value: Any,
+        key: String?,
+        parentsLast: [Bool],
+        isLast: Bool,
+        output: inout [String],
+        isRoot: Bool = false
+    ) {
+        let prefix = isRoot ? "" : drawPrefix(parentsLast: parentsLast, isLast: isLast)
+        let label = key.map { "\($0): " } ?? ""
+
+        switch value {
+        case let dict as [String: Any?]:
+            if !isRoot {
+                // Always print the parent key line for non-root dicts
+                output.append("\(prefix)\(label)")
+            }
+            let sortedKeys = customSortedKeys(for: dict)
+            for (index, k) in sortedKeys.enumerated() {
+                let v = dict[k] ?? "nil"
+                let childIsLast = index == sortedKeys.count - 1
+                formatRecursive(
+                    v as Any,
+                    key: k,
+                    parentsLast: isRoot ? [] : (parentsLast + [isLast]),
+                    isLast: childIsLast,
+                    output: &output,
+                    isRoot: false
+                )
+            }
+        case let array as [Any]:
+            // Always print the parent key line for arrays (unless at root, but arrays are never root here)
+            output.append("\(prefix)\(label)")
+            for (index, item) in array.enumerated() {
+                let childIsLast = index == array.count - 1
+                formatRecursive(item, key: "[\(index)]", parentsLast: parentsLast + [isLast], isLast: childIsLast, output: &output, isRoot: false)
+            }
+        default:
+            output.append("\(prefix)\(label)\(stringify(value))")
+        }
+    }
+
+    // Put "routing key" first, others alphabetical
+    private static func customSortedKeys(for dict: [String: Any?]) -> [String] {
+        var keys = Array(dict.keys)
+        if let index = keys.firstIndex(of: "routing key") {
+            keys.remove(at: index)
+            return ["routing key"] + keys.sorted()
+        }
+        return keys.sorted()
+    }
+
+    private static func drawPrefix(parentsLast: [Bool], isLast: Bool) -> String {
+        var prefix = ""
+        for wasLast in parentsLast {
+            prefix += wasLast ? "    " : "│   "
+        }
+        prefix += isLast ? "└─ " : "├─ "
+        return prefix
+    }
+
+    private static func stringify(_ value: Any?) -> String {
+        switch value {
+        case let number as NSNumber:
+            if CFGetTypeID(number) == CFBooleanGetTypeID() {
+                return number.boolValue ? "true" : "false"
+            }
+            return number.stringValue
+        case let string as String:
+            return string
+        case is NSNull:
+            return "null"
+        default:
+            return String(describing: value ?? "nil")
         }
     }
     
@@ -54,50 +131,4 @@ public enum NexusDataFormatter {
             .replacingOccurrences(of: "=", with: "\\=")
     }
 
-    // MARK: - Internal Recursive Logic
-
-    private static func formatRecursive(_ value: Any, prefix: String, isLast: Bool, output: inout [String]) {
-        let branch = isLast ? "└─ " : "├─ "
-        let indent = isLast ? "    " : "│   "
-
-        switch value {
-        case let dict as [String: Any?]:
-            let sortedKeys = dict.keys.sorted()
-            for (index, key) in sortedKeys.enumerated() {
-                let isLastItem = index == sortedKeys.count - 1
-                let val = dict[key] ?? "nil"
-                if val is [Any] || val is [String: Any?] {
-                    output.append("\(prefix)\(branch)\(key):")
-                    formatRecursive(val as Any, prefix: prefix + indent, isLast: isLastItem, output: &output)
-                } else {
-                    output.append("\(prefix)\(branch)\(key): \(stringify(val))")
-                }
-            }
-
-        case let array as [Any]:
-            for (index, item) in array.enumerated() {
-                let isLastItem = index == array.count - 1
-                output.append("\(prefix)\(branch)[\(index)]")
-                formatRecursive(item, prefix: prefix + indent, isLast: isLastItem, output: &output)
-            }
-
-        default:
-            output.append("\(prefix)\(branch)\(stringify(value))")
-        }
-    }
-
-    private static func stringify(_ value: Any?) -> String {
-        switch value {
-        case let number as NSNumber:
-            return number.stringValue
-        case let string as String:
-            return string
-        case let bool as Bool:
-            return bool ? "true" : "false"
-        case is NSNull:
-            return "null"
-        default:
-            return String(describing: value ?? "nil")
-        }
-    }
 }
