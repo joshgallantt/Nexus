@@ -29,6 +29,10 @@ struct NexusExampleApp: App {
         getAccountTier()
         attemptSavingPreferences()
         unsafeForceUnwrap()
+
+        // JSON test payloads
+        testJSONObject()
+        testJSONArray()
     }
 
     var body: some Scene {}
@@ -37,7 +41,7 @@ struct NexusExampleApp: App {
 // MARK: - Sample functions generating logs
 
 private func trackUserLanding() {
-    Nexus.track("User viewed home screen")
+    Nexus.track("User viewed home screen", routingKey: "routing key")
 }
 
 private func fetchItemsFromAPI() {
@@ -45,7 +49,7 @@ private func fetchItemsFromAPI() {
         Nexus.debug("Fetched 12 items from API", [
             "endpoint": "/api/items",
             "duration": "132ms"
-        ])
+        ],)
     }
 }
 
@@ -80,4 +84,34 @@ struct UserEventContext: Encodable {
     let name: String
     let isPremium: Bool
     let createdAt: Date
+}
+
+// MARK: - Test JSON Payloads
+
+private func testJSONObject() {
+    let payload: [String: Any] = [
+        "sessionId": "abc123",
+        "active": true,
+        "timestamp": "2025-07-05T16:42:00Z",
+        "features": ["logging", "analytics"],
+        "user": [
+            "id": 1,
+            "name": "Ada Lovelace"
+        ]
+    ]
+
+    if let data = try? JSONSerialization.data(withJSONObject: payload, options: []) {
+        Nexus.debug("Top-level object JSON", data)
+    }
+}
+
+private func testJSONArray() {
+    let array: [[String: Any]] = [
+        ["id": 1, "name": "Item A"],
+        ["id": 2, "name": "Item B"]
+    ]
+
+    if let data = try? JSONSerialization.data(withJSONObject: array, options: []) {
+        Nexus.debug("Top-level array JSON", data)
+    }
 }

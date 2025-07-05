@@ -29,16 +29,16 @@ public struct OSLoggerHumanReadable: NexusDestination {
         let message = msg.isEmpty ? "<no message>" : msg
 
         let headerLine = formatHeaderLine(from: event, message: message)
-        let dataLines = formatDataBlock(from: event, fittingIn: maxLogLength - headerLine.count)
+        var dataLines = formatDataBlock(from: event, fittingIn: maxLogLength - headerLine.count) ?? []
+
+        if let routingKey = event.metadata.routingKey {
+            let formatted = "routing key: \"\(routingKey)\""
+            dataLines.insert("└─ \(formatted)", at: 0)
+        }
 
         var fullMessage = headerLine
-        if let lines = dataLines {
-            let count = lines.count
-            let prefixedLines = lines.enumerated().map { index, line in
-                let prefix = index == count - 1 ? "└─ " : "├─ "
-                return "\(prefix)\(line)"
-            }
-            fullMessage += "\n" + prefixedLines.joined(separator: "\n")
+        if !dataLines.isEmpty {
+            fullMessage += "\n" + dataLines.joined(separator: "\n")
         }
 
         let output = fullMessage.count > maxLogLength
@@ -55,44 +55,18 @@ public struct OSLoggerHumanReadable: NexusDestination {
         let level = m.type.name.uppercased()
         let file = ((m.fileName as NSString).lastPathComponent as NSString)
         let location = "\(file):\(m.lineNumber) on \(m.threadName)"
-
         return "\(time) \(emoji) \(level) - \(location) - \(message)"
     }
-
 
     private func formatDataBlock(from event: NexusEvent, fittingIn limit: Int) -> [String]? {
         guard showData else { return nil }
 
-        var lines: [String] = []
-
         if let values = event.data?.values {
-            lines.append(contentsOf: values
-                .sorted(by: { $0.key < $1.key })
-                .map { "\($0.key): \($0.value)" })
+            return NexusDataFormatter.formatLines(from: values, limit: limit)
         } else if let jsonData = event.data?.json {
-            if let dict = try? JSONSerialization.jsonObject(with: jsonData) as? [String: Any] {
-                for key in dict.keys.sorted() {
-                    lines.append("\(key): \(String(describing: dict[key]!))")
-                }
-            } else {
-                lines.append("<unreadable json>")
-            }
+            return NexusDataFormatter.formatLines(from: jsonData, limit: limit)
         }
 
-        guard !lines.isEmpty else { return nil }
-
-        var truncatedLines: [String] = []
-        var total = 0
-        for line in lines {
-            let next = line + "\n"
-            if total + next.count > limit {
-                truncatedLines.append("… [truncated]")
-                break
-            }
-            truncatedLines.append(line)
-            total += next.count
-        }
-
-        return truncatedLines
+        return nil
     }
 }

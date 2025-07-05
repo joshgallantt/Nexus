@@ -52,13 +52,13 @@ public struct OSLoggerMachineParsable: NexusDestination {
         ]
 
         if let routingKey = meta.routingKey {
-            fields.append("routingKey=\(sanitizeString(routingKey))") // 10
+            fields.append("routingKey=\(NexusDataFormatter.sanitizeString(routingKey))") // 10
         }
 
         let structuredData = flattenData(from: event.data)
         if !structuredData.isEmpty {
             let keyValuePairs = structuredData
-                .map { "\(sanitizeString($0.key))=\(sanitizeAndTruncate($0.value, limit: maxValueLength))" }
+                .map { "\(NexusDataFormatter.sanitizeString($0.key))=\(sanitizeAndTruncate($0.value, limit: maxValueLength))" }
                 .sorted()
                 .joined(separator: ",")
             fields.append(keyValuePairs) // 11+
@@ -89,20 +89,8 @@ public struct OSLoggerMachineParsable: NexusDestination {
         return values
     }
 
-    private func sanitizeString(_ input: String) -> String {
-        input
-            .replacingOccurrences(of: "\\", with: "\\\\")
-            .replacingOccurrences(of: "\n", with: "\\n")
-            .replacingOccurrences(of: "\r", with: "\\r")
-            .replacingOccurrences(of: "\t", with: "\\t")
-            .replacingOccurrences(of: "|", with: "\\|")
-            .replacingOccurrences(of: "\"", with: "\\\"")
-            .replacingOccurrences(of: ",", with: "\\,")
-            .replacingOccurrences(of: "=", with: "\\=")
-    }
-
     private func sanitizeAndTruncate(_ input: String, limit: Int) -> String {
         let truncated = input.count > limit ? String(input.prefix(limit)) + "…" : input
-        return sanitizeString(truncated)
+        return NexusDataFormatter.sanitizeString(truncated)
     }
 }
