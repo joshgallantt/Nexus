@@ -11,12 +11,14 @@ import Nexus
 @main
 struct NexusExampleApp: App {
     init() {
-        // Logging setup
+        // Setup Logging Destination
         #if DEBUG
-        let logSetup = NexusDebugLog()
-        Nexus.addDestination(logSetup, serialised: true)
+        let setupLogger = NexusDebugLog(showData: true, logOnly: [.debug, .warning, .error])
+        Nexus.addDestination(setupLogger, serialised: true)
         #endif
 
+        // Example Logging
+        
         trackUserLanding()
         fetchItemsFromAPI()
         enableNotifications()
