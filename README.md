@@ -179,7 +179,8 @@ Example output using one of our provided destinations:
 
 A **NexusDestination** receives events from Nexus.
 * They are a place where you can map, modify, and filter data before sending it to it's final destination.
-* Add as many as you like, even multiple for the same endpoint if you want!
+* For example, in the images shown above we format the data then print them to console through OS.Logger.
+* Add as many as destinations you like, even multiple for the same endpoint if you want!
 * The processing of events happen in parallel - so when one destination slows down, the rest won't become blocked.
 
 ### <br> Registering Destinations
