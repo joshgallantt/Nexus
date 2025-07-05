@@ -36,7 +36,7 @@ public extension Nexus {
     ///   - message: The debug message.
     ///   - routingKey: Optional routing key to filter/route this message.
     ///   - values: Dictionary of string key-value pairs representing additional metadata.
-    static func debug(_ message: String, routingKey: String? = nil, _ values: [String: String]? = nil, file: String = #fileID, function: String = #function, line: Int = #line) {
+    static func debug(_ message: String, routingKey: String? = nil, _ values: [String: Any]? = nil, file: String = #fileID, function: String = #function, line: Int = #line) {
         sendEvent(message, .debug, routingKey: routingKey, values: values, file: file, function: function, line: line)
     }
 
@@ -72,7 +72,7 @@ public extension Nexus {
     ///   - message: The tracking message.
     ///   - routingKey: Optional routing key.
     ///   - values: Dictionary of attributes for the event.
-    static func track(_ message: String, routingKey: String? = nil, _ values: [String: String]? = nil, file: String = #fileID, function: String = #function, line: Int = #line) {
+    static func track(_ message: String, routingKey: String? = nil, _ values: [String: Any]? = nil, file: String = #fileID, function: String = #function, line: Int = #line) {
         sendEvent(message, .track, routingKey: routingKey, values: values, file: file, function: function, line: line)
     }
 
@@ -110,7 +110,7 @@ public extension Nexus {
     ///   - message: The message to log.
     ///   - routingKey: Optional routing key.
     ///   - values: Optional key-value attributes.
-    static func info(_ message: String, routingKey: String? = nil, _ values: [String: String]? = nil, file: String = #fileID, function: String = #function, line: Int = #line) {
+    static func info(_ message: String, routingKey: String? = nil, _ values: [String: Any]? = nil, file: String = #fileID, function: String = #function, line: Int = #line) {
         sendEvent(message, .info, routingKey: routingKey, values: values, file: file, function: function, line: line)
     }
 
@@ -151,7 +151,7 @@ public extension Nexus {
     ///   - message: Notice message.
     ///   - routingKey: Optional routing key.
     ///   - values: Event attributes.
-    static func notice(_ message: String, routingKey: String? = nil, _ values: [String: String]? = nil, file: String = #fileID, function: String = #function, line: Int = #line) {
+    static func notice(_ message: String, routingKey: String? = nil, _ values: [String: Any]? = nil, file: String = #fileID, function: String = #function, line: Int = #line) {
         sendEvent(message, .notice, routingKey: routingKey, values: values, file: file, function: function, line: line)
     }
 
@@ -190,7 +190,7 @@ public extension Nexus {
     ///   - message: Warning message.
     ///   - routingKey: Optional routing key.
     ///   - values: Additional context.
-    static func warning(_ message: String, routingKey: String? = nil, _ values: [String: String]? = nil, file: String = #fileID, function: String = #function, line: Int = #line) {
+    static func warning(_ message: String, routingKey: String? = nil, _ values: [String: Any]? = nil, file: String = #fileID, function: String = #function, line: Int = #line) {
         sendEvent(message, .warning, routingKey: routingKey, values: values, file: file, function: function, line: line)
     }
 
@@ -230,7 +230,7 @@ public extension Nexus {
     ///   - message: The error message.
     ///   - routingKey: Optional routing key.
     ///   - values: Contextual data about the error.
-    static func error(_ message: String, routingKey: String? = nil, _ values: [String: String]? = nil, file: String = #fileID, function: String = #function, line: Int = #line) {
+    static func error(_ message: String, routingKey: String? = nil, _ values: [String: Any]? = nil, file: String = #fileID, function: String = #function, line: Int = #line) {
         sendEvent(message, .error, routingKey: routingKey, values: values, file: file, function: function, line: line)
     }
 
@@ -271,7 +271,7 @@ public extension Nexus {
     ///   - message: The fault message.
     ///   - routingKey: Optional routing key.
     ///   - values: Details of the failure.
-    static func fault(_ message: String, routingKey: String? = nil, _ values: [String: String]? = nil, file: String = #fileID, function: String = #function, line: Int = #line) {
+    static func fault(_ message: String, routingKey: String? = nil, _ values: [String: Any]? = nil, file: String = #fileID, function: String = #function, line: Int = #line) {
         sendEvent(message, .fault, routingKey: routingKey, values: values, file: file, function: function, line: line)
     }
 
@@ -306,13 +306,14 @@ public extension Nexus {
         _ message: String,
         _ type: NexusEventType,
         routingKey: String?,
-        values: [String: String]? = nil,
+        values: [String: Any]? = nil,
         file: String,
         function: String,
         line: Int
     ) {
         let metadata = buildMetadata(type: type, routingKey: routingKey, file: file, function: function, line: line)
-        let event = NexusEvent(metadata: metadata, message: message, data: NexusEventData(values: values))
+        let stringifiedValues = stringify(values)
+        let event = NexusEvent(metadata: metadata, message: message, data: NexusEventData(values: stringifiedValues))
         shared.send(event)
     }
 
@@ -373,8 +374,17 @@ public extension Nexus {
             fileName: file,
             functionName: function,
             lineNumber: String(line),
-            threadName: Thread.isMainThread ? "main" : "thread-\(pthread_mach_thread_np(pthread_self()))",
+            threadName: Thread.isMainThread ? "main" : "\(pthread_mach_thread_np(pthread_self()))",
             routingKey: routingKey
         )
+    }
+    
+    private static func stringify(_ dict: [String: Any]?) -> [String: String]? {
+        guard let dict = dict else { return nil }
+        var result: [String: String] = [:]
+        for (key, value) in dict {
+            result[key] = String(describing: value)
+        }
+        return result
     }
 }
