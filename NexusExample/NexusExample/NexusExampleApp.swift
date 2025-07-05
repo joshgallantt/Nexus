@@ -24,8 +24,7 @@ struct NexusExampleApp: App {
         unsafeForceUnwrap()
 
         // JSON test payloads
-        testJSONObject()
-        testJSONArray()
+        testJSONObjects()
         exampleEncodable()
         testKeyValuePairs()
     }
@@ -85,7 +84,7 @@ struct UserEventContext: Encodable {
 
 // MARK: - Test JSON Payloads
 
-private func testJSONObject() {
+private func testJSONObjects() {
     let json: [String: Any] = [
         "active": true,
         "features": ["logging", "analytics"],
@@ -109,14 +108,7 @@ private func testJSONObject() {
             ]
         ]
     ]
-
-
-    if let data = try? JSONSerialization.data(withJSONObject: json, options: []) {
-        Nexus.debug("Top-level object JSON", routingKey: "routingkey", data)
-    }
-}
-
-private func testJSONArray() {
+    
     let array: [[String: Any]] = [
         ["id": 1, "name": "Item A"],
         ["id": 2, "name": "Item B"]
@@ -124,6 +116,11 @@ private func testJSONArray() {
 
     if let data = try? JSONSerialization.data(withJSONObject: array, options: []) {
         Nexus.debug("Top-level array JSON", routingKey: "routingkey", data)
+    }
+
+
+    if let data = try? JSONSerialization.data(withJSONObject: json, options: []) {
+        Nexus.debug("Top-level object JSON", routingKey: "routingkey", data)
     }
 }
 
