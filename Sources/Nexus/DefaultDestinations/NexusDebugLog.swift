@@ -1,5 +1,5 @@
 //
-//  OSLoggerHumanReadable.swift
+//  NexusDebugLog.swift
 //  Nexus
 //
 //  Created by Josh Gallant on 02/07/2025.

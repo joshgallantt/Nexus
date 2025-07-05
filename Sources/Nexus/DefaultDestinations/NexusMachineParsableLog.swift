@@ -1,5 +1,5 @@
 //
-//  OSLoggerMachineParsable.swift
+//  NexusMachineParsableLog.swift
 //  Nexus
 //
 //  Created by Josh Gallant on 01/07/2025.
@@ -8,14 +8,14 @@
 import Foundation
 import os
 
-public struct OSLoggerMachineParsable: NexusDestination {
+public struct NexusMachineParsableLog: NexusDestination {
     private let logger: Logger
     private let maxMessageLength = 500
     private let maxValueLength = 200
 
     public init(
         subsystem: String = Bundle.main.bundleIdentifier ?? "Unknown Bundle",
-        category: String = "NexusLogger"
+        category: String = "Nexus Machine Parsable Log"
     ) {
         self.logger = Logger(subsystem: subsystem, category: category)
     }
