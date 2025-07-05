@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="NexusExample/nexus.png" alt="App Screenshot" width="300" />
+  <img src="NexusExample/images/nexus.png" alt="App Screenshot" width="300" />
 </p>
 
 <p align="center">
@@ -14,8 +14,8 @@
 </p>
 
 
-<p align="center"\>
-<img src="NexusExample/example.png" alt="App Screenshot" width="10000"/>
+<p align="center">
+<img src="NexusExample/images/example.png" alt="App Screenshot" width="10000"/>
 </p>
 
 ## <br><br> What is Nexus?
@@ -111,6 +111,8 @@ Nexus.fault("Unexpected nil unwrapped!", ["file": "LoginManager.swift"])
 
 **🚫 No Dependencies:** Nexus is lightweight and vendor-agnostic — no external dependencies.
 
+**📦 Multiple Payloads:** Send Nexus Events for key value pairs, any encodable object, or JSON.
+
 Whether you're debug logging to the console in dev, sending analytics to Firebase in prod, or writing logs to disk in CI — Nexus is for you.
 
 
@@ -128,6 +130,7 @@ Use this when:
 ```swift
 Nexus.info("User tapped login", ["screen": "LoginView", "button": "submit"])
 ```
+<img src="NexusExample/images/example-kvp.png" alt="App Screenshot" width="300" />
 
 ### <br> 2. `Encodable` Types
 
@@ -148,6 +151,8 @@ struct LoginEvent: Codable {
 Nexus.track("Login event", LoginEvent(screen: "LoginView", button: "submit", userID: "abc123"))
 ```
 
+<img src="NexusExample/images/example-encodable.png" alt="App Screenshot" width="300" />
+
 ### <br> 3. Pre-encoded `Data` (JSON)
 
 Use this when:
@@ -160,6 +165,8 @@ Use this when:
 let jsonData = try JSONSerialization.data(withJSONObject: ["screen": "LoginView"], options: [])
 Nexus.debug("Manually encoded event", jsonData)
 ```
+
+<img src="NexusExample/images/example-json.png" alt="App Screenshot" width="300" />
 
 ## <br><br> Destinations
 
@@ -215,7 +222,7 @@ Nexus ships with some production ready destinations out of the box so you can st
 
 | Destination                 | Description                                                           |
 | --------------------------- | --------------------------------------------------------------------- |
-| `OSLoggerHumanReadable()`   | Logs to Apple’s unified logging system in a developer-friendly format |
+| `OSLoggerHumanReadable()`   | Used in the example images above, logs to Apple’s unified logging system in a easy to read format |
 | `OSLoggerMachineParsable()` | Logs structured data suitable for ingestion and automation            |
 
 

@@ -23,10 +23,9 @@ struct NexusExampleApp: App {
         attemptSavingPreferences()
         unsafeForceUnwrap()
 
-        // JSON test payloads
-        testJSONObjects()
+        exampleJSONObjects()
         exampleEncodable()
-        testKeyValuePairs()
+        exampleKeyValuePairs()
     }
 
     var body: some Scene {}
@@ -62,8 +61,8 @@ private func unsafeForceUnwrap() {
     Nexus.fault("Why are you force unwrapping?")
 }
 
-private func testKeyValuePairs() {
-    Nexus.debug("Key-value pairs test", routingKey: "routingkey", [
+private func exampleKeyValuePairs() {
+    Nexus.debug("Key-value pairs Example", routingKey: "routingkey", [
         "count": 5,
         "status": "ok",
         "user": [
@@ -84,7 +83,7 @@ struct UserEventContext: Encodable {
 
 // MARK: - Test JSON Payloads
 
-private func testJSONObjects() {
+private func exampleJSONObjects() {
     let json: [String: Any] = [
         "active": true,
         "features": ["logging", "analytics"],
