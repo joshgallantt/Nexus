@@ -161,12 +161,5 @@ private func testThreeDeepEncodable() {
             )
         )
     )
-    do {
-        let encoder = JSONEncoder()
-        encoder.dateEncodingStrategy = .iso8601
-        let data = try encoder.encode(event)
-        Nexus.debug("Three-level Encodable object", routingKey: "routingkey", data)
-    } catch {
-        Nexus.error("Failed to encode three-level object", ["error": error.localizedDescription])
-    }
+    Nexus.debug("Three-level Encodable object", routingKey: "routingkey", event)
 }
