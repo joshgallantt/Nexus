@@ -130,7 +130,7 @@ Use this when:
 ```swift
 Nexus.info("User tapped login", ["screen": "LoginView", "button": "submit"])
 ```
-<img src="NexusExample/images/example-kvp.png" alt="App Screenshot" width="300" />
+<img src="NexusExample/images/example-kvp.png" alt="App Screenshot" width="10000" />
 
 ### <br> 2. `Encodable` Types
 
@@ -151,7 +151,7 @@ struct LoginEvent: Codable {
 Nexus.track("Login event", LoginEvent(screen: "LoginView", button: "submit", userID: "abc123"))
 ```
 
-<img src="NexusExample/images/example-encodable.png" alt="App Screenshot" width="300" />
+<img src="NexusExample/images/example-encodable.png" alt="App Screenshot" width="10000" />
 
 ### <br> 3. Pre-encoded `Data` (JSON)
 
@@ -166,7 +166,7 @@ let jsonData = try JSONSerialization.data(withJSONObject: ["screen": "LoginView"
 Nexus.debug("Manually encoded event", jsonData)
 ```
 
-<img src="NexusExample/images/example-json.png" alt="App Screenshot" width="300" />
+<img src="NexusExample/images/example-json.png" alt="App Screenshot" width="10000" />
 
 ## <br><br> Destinations
 
