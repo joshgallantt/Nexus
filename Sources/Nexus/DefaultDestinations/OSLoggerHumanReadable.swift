@@ -26,21 +26,23 @@ public struct OSLoggerHumanReadable: NexusDestination {
 
     public func send(_ event: NexusEvent) {
         let msg = event.message.trimmingCharacters(in: .whitespacesAndNewlines)
-        let body = msg.isEmpty ? "<no message>" : msg
+        let message = msg.isEmpty ? "<no message>" : msg
 
-        let headerLine = formatHeaderLine(from: event, message: body)
-        let metaLine = formatMetadataLine(from: event)
+        let headerLine = formatHeaderLine(from: event, message: message)
+        let dataLines = formatDataBlock(from: event, fittingIn: maxLogLength - headerLine.count)
 
-        let fullMessage: String
-        if let lines = formatDataBlock(from: event, fittingIn: maxLogLength - (headerLine.count + metaLine.count)) {
-            let formattedLines = lines.map { "↳ \($0)" }.joined(separator: "\n")
-            fullMessage = [headerLine, metaLine, formattedLines].joined(separator: "\n")
-        } else {
-            fullMessage = [headerLine, metaLine].joined(separator: "\n")
+        var fullMessage = headerLine
+        if let lines = dataLines {
+            let count = lines.count
+            let prefixedLines = lines.enumerated().map { index, line in
+                let prefix = index == count - 1 ? "└─ " : "├─ "
+                return "\(prefix)\(line)"
+            }
+            fullMessage += "\n" + prefixedLines.joined(separator: "\n")
         }
 
         let output = fullMessage.count > maxLogLength
-            ? String(fullMessage.prefix(maxLogLength)) + "\n↳ … [truncated]"
+            ? String(fullMessage.prefix(maxLogLength)) + "\n└─ … [truncated]"
             : fullMessage
 
         logger.log(level: event.metadata.type.defaultOSLogType, "\(output, privacy: .public)")
@@ -51,13 +53,12 @@ public struct OSLoggerHumanReadable: NexusDestination {
         let time = NexusTimeFormatter.shared.shortTimeWithMillis(from: m.time)
         let emoji = m.type.emoji
         let level = m.type.name.uppercased()
-        return "\(time) \(emoji) \(level) - \(message)"
+        let file = ((m.fileName as NSString).lastPathComponent as NSString)
+        let location = "\(file):\(m.lineNumber) on \(m.threadName)"
+
+        return "\(time) \(emoji) \(level) - \(location) - \(message)"
     }
 
-    private func formatMetadataLine(from event: NexusEvent) -> String {
-        let m = event.metadata
-        return "\(m.bundleName)@\(m.appVersion) - \(m.fileName):\(m.lineNumber) - \(m.functionName):\(m.threadName)"
-    }
 
     private func formatDataBlock(from event: NexusEvent, fittingIn limit: Int) -> [String]? {
         guard showData else { return nil }

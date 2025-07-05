@@ -13,7 +13,6 @@ struct NexusExampleApp: App {
     init() {
         // Logging setup
         Nexus.addDestination(OSLoggerHumanReadable(showData: true), serialised: true)
-//        Nexus.addDestination(OSLoggerMachineParsable(), serialised: true)
 
         // Global user context
         let context = UserEventContext(
@@ -23,34 +22,58 @@ struct NexusExampleApp: App {
             createdAt: Date()
         )
 
-        Nexus.track("User viewed home screen")
-
-        Task.detached {
-            Nexus.debug("Fetched 12 items from API", [
-                "endpoint": "/api/items",
-                "duration": "132ms"
-            ])
-        }
-
-        Nexus.info("User enabled notifications", context)
-
-        Nexus.notice("User verified email", [
-            "method": "magic_link"
-        ])
-
-        Nexus.warning("App background fetch took unusually long", [
-            "duration": "29s"
-        ])
-
-        Nexus.error("Failed to save user preferences", [
-            "error": "disk full"
-        ])
-
-        Nexus.fault("Why are you force unwrapping?")
+        trackUserLanding()
+        fetchItemsFromAPI()
+        enableNotifications(context: context)
+        verifyUserEmail()
+        getAccountTier()
+        attemptSavingPreferences()
+        unsafeForceUnwrap()
     }
 
     var body: some Scene {}
 }
+
+// MARK: - Sample functions generating logs
+
+private func trackUserLanding() {
+    Nexus.track("User viewed home screen")
+}
+
+private func fetchItemsFromAPI() {
+    Task.detached {
+        Nexus.debug("Fetched 12 items from API", [
+            "endpoint": "/api/items",
+            "duration": "132ms"
+        ])
+    }
+}
+
+private func enableNotifications(context: UserEventContext) {
+    Nexus.info("User enabled notifications", context)
+}
+
+private func verifyUserEmail() {
+    Nexus.notice("User verified email", [
+        "method": "magic_link"
+    ])
+}
+
+private func getAccountTier() {
+    Nexus.warning("Unable to determine tier, falling back to free tier.")
+}
+
+private func attemptSavingPreferences() {
+    Nexus.error("Failed to save user preferences", [
+        "error": "disk full"
+    ])
+}
+
+private func unsafeForceUnwrap() {
+    Nexus.fault("Why are you force unwrapping?")
+}
+
+// MARK: - Context model
 
 struct UserEventContext: Encodable {
     let userId: Int
