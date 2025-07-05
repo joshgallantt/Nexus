@@ -13,7 +13,8 @@ struct NexusExampleApp: App {
     init() {
         // Logging setup
         #if DEBUG
-        Nexus.addDestination(NexusDebugLog(showData: true), serialised: true)
+        let logSetup = NexusDebugLog()
+        Nexus.addDestination(logSetup, serialised: true)
         #endif
 
         trackUserLanding()

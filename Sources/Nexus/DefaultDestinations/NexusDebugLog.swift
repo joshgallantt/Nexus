@@ -12,19 +12,46 @@ public struct NexusDebugLog: NexusDestination {
     private let logger: Logger
     private let showData: Bool
     private let maxLogLength: Int
+    private let logOnly: [NexusEventType]
+    private let requiredRoutingKey: String?
 
     public init(
-        subsystem: String = Bundle.main.bundleIdentifier ?? "Unknown Bundle",
-        category: String = "Nexus Debug Log",
         showData: Bool = true,
+        logOnly: [NexusEventType] = [.debug, .track, .info, .notice, .warning, .error, .fault],
+        requiredRoutingKey: String? = nil,
+        maxLogLength: Int = 1000,
+    ) {
+        self.logger = Logger(subsystem: Bundle.main.bundleIdentifier ?? "Unknown Bundle", category: "Nexus Debug Log")
+        self.showData = showData
+        self.logOnly = logOnly
+        self.requiredRoutingKey = requiredRoutingKey
+        self.maxLogLength = maxLogLength
+    }
+    
+    private init(
+        logger: Logger = Logger(subsystem: Bundle.main.bundleIdentifier ?? "Unknown Bundle", category: "Nexus Debug Log"),
+        showData: Bool = true,
+        logOnly: [NexusEventType] = [.debug, .track, .info, .notice, .warning, .error, .fault],
+        requiredRoutingKey: String? = nil,
         maxLogLength: Int = 1000
     ) {
-        self.logger = Logger(subsystem: subsystem, category: category)
+        self.logger = logger
         self.showData = showData
+        self.logOnly = logOnly
+        self.requiredRoutingKey = requiredRoutingKey
         self.maxLogLength = maxLogLength
     }
 
     public func send(_ event: NexusEvent) {
+        
+        if let requiredRoutingKey, requiredRoutingKey != event.metadata.routingKey {
+            return
+        }
+        
+        if !logOnly.contains(event.metadata.type) {
+            return
+        }
+        
         let msg = event.message.trimmingCharacters(in: .whitespacesAndNewlines)
         let message = msg.isEmpty ? "<no message>" : msg
 
