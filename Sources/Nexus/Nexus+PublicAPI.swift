@@ -21,7 +21,7 @@ public extension Nexus {
     @inlinable
     public nonisolated static func addDestination(
         _ dest: NexusDestination,
-        serialised: Bool = false
+        serialised: Bool = true
     ) {
         NexusDestinationStore.shared.addDestination(dest, serialised: serialised)
     }

@@ -10,6 +10,8 @@ import os
 
 public struct OSLoggerMachineParsable: NexusDestination {
     private let logger: Logger
+    private let maxMessageLength = 500
+    private let maxValueLength = 200
 
     public init(
         subsystem: String = Bundle.main.bundleIdentifier ?? "Unknown Bundle",
@@ -19,59 +21,74 @@ public struct OSLoggerMachineParsable: NexusDestination {
     }
 
     public func send(_ event: NexusEvent) {
-        let message = event.message
-        let metadata = event.metadata
+        let output = formatLogOutput(for: event)
+        logger.log(level: event.metadata.type.defaultOSLogType, "\(output, privacy: .public)")
+    }
 
-        // Surface metadata
-        let type = metadata.type
-        let time = metadata.time
-        let deviceModel = metadata.deviceModel
-        let osVersion = metadata.osVersion
-        let bundleName = metadata.bundleName
-        let appVersion = metadata.appVersion
-        let fileName = metadata.fileName
-        let functionName = metadata.functionName
-        let lineNumber = metadata.lineNumber
-        let threadName = metadata.threadName
-        let routingKey = metadata.routingKey
+    // MARK: - Private helpers
 
-        // Prep values
-        let emoji = type.emoji
-        let typeName = type.name
-        let osLogType = type.defaultOSLogType
-        let timestamp = TimeFormatter.shared.iso8601TimeString(from: time)
+    private func formatLogOutput(for event: NexusEvent) -> String {
+        let meta = event.metadata
 
-        let trimmedMessage = message.trimmingCharacters(in: .whitespacesAndNewlines)
+        let emoji = meta.type.emoji
+        let typeName = meta.type.name
+        let timestamp = NexusTimeFormatter.shared.iso8601TimeString(from: meta.time)
+
+        let trimmedMessage = event.message.trimmingCharacters(in: .whitespacesAndNewlines)
         let displayMessage = trimmedMessage.isEmpty ? "<no message>" : trimmedMessage
-        let sanitizedMessage = "\"\(sanitizeString(displayMessage))\""
+        let sanitizedMessage = "\"\(sanitizeAndTruncate(displayMessage, limit: maxMessageLength))\""
 
-        var sections = [
+        var fields = [
             "\(emoji)\(typeName)",
             timestamp,
-            bundleName,
-            appVersion,
-            "\(fileName):\(lineNumber)",
-            threadName,
-            functionName,
-            deviceModel,
-            osVersion,
+            meta.bundleName,
+            meta.appVersion,
+            "\(meta.fileName):\(meta.lineNumber)",
+            meta.threadName,
+            meta.functionName,
+            meta.deviceModel,
+            meta.osVersion,
             sanitizedMessage
         ]
 
-        if let routingKey {
-            sections.append("routingKey=\(routingKey)")
+        if let routingKey = meta.routingKey {
+            fields.append("routingKey=\(sanitizeString(routingKey))") // 10
         }
 
-        if let values = event.data?.values, !values.isEmpty {
-            let keyValuePairs = values
-                .map { "\(sanitizeString($0.key))=\(sanitizeString($0.value))" }
+        let structuredData = flattenData(from: event.data)
+        if !structuredData.isEmpty {
+            let keyValuePairs = structuredData
+                .map { "\(sanitizeString($0.key))=\(sanitizeAndTruncate($0.value, limit: maxValueLength))" }
+                .sorted()
                 .joined(separator: ",")
-            sections.append(keyValuePairs)
+            fields.append(keyValuePairs) // 11+
         }
 
-        let output = sections.joined(separator: "|")
-        logger.log(level: osLogType, "\(output, privacy: .public)")
+        return fields.joined(separator: "|")
     }
+
+    private func flattenData(from data: NexusEventData?) -> [String: String] {
+        var values: [String: String] = [:]
+
+        if let kv = data?.values {
+            for (key, value) in kv {
+                values[key] = value
+            }
+        }
+
+        if let jsonData = data?.json {
+            if let dict = try? JSONSerialization.jsonObject(with: jsonData) as? [String: Any] {
+                for (key, value) in dict {
+                    values[key] = String(describing: value)
+                }
+            } else {
+                values["json"] = "<invalid>"
+            }
+        }
+
+        return values
+    }
+
     private func sanitizeString(_ input: String) -> String {
         input
             .replacingOccurrences(of: "\\", with: "\\\\")
@@ -83,27 +100,9 @@ public struct OSLoggerMachineParsable: NexusDestination {
             .replacingOccurrences(of: ",", with: "\\,")
             .replacingOccurrences(of: "=", with: "\\=")
     }
-}
 
-struct TimeFormatter: Sendable {
-    static let shared = TimeFormatter()
-
-    nonisolated(unsafe) private static let formatter: ISO8601DateFormatter = {
-        let formatter = ISO8601DateFormatter()
-        formatter.formatOptions = [.withInternetDateTime, .withFractionalSeconds]
-        formatter.timeZone = TimeZone(secondsFromGMT: 0)
-        return formatter
-    }()
-
-    func iso8601TimeString(from date: Date) -> String {
-        Self.formatter.string(from: date)
+    private func sanitizeAndTruncate(_ input: String, limit: Int) -> String {
+        let truncated = input.count > limit ? String(input.prefix(limit)) + "…" : input
+        return sanitizeString(truncated)
     }
-    
-    func shortTimeWithMillis(from date: Date) -> String {
-        let formatter = DateFormatter()
-        formatter.dateFormat = "HH:mm:ss.SSS"
-        formatter.timeZone = .current
-        return formatter.string(from: date)
-    }
-
 }

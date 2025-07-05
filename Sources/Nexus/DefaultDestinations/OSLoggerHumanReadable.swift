@@ -27,40 +27,36 @@ public struct OSLoggerHumanReadable: NexusDestination {
     public func send(_ event: NexusEvent) {
         let msg = event.message.trimmingCharacters(in: .whitespacesAndNewlines)
         let body = msg.isEmpty ? "<no message>" : msg
-        let base = formatBaseMessage(from: event, message: body)
 
-        if let lines = formatDataBlock(from: event, fittingIn: maxLogLength - base.count) {
+        let headerLine = formatHeaderLine(from: event, message: body)
+        let metaLine = formatMetadataLine(from: event)
+
+        let fullMessage: String
+        if let lines = formatDataBlock(from: event, fittingIn: maxLogLength - (headerLine.count + metaLine.count)) {
             let formattedLines = lines.map { "↳ \($0)" }.joined(separator: "\n")
-            var message = base + "\n" + formattedLines
-            if message.count > maxLogLength {
-                message += "\n↳ … [truncated]"
-            }
-            logger.log(level: event.metadata.type.defaultOSLogType, "\(message, privacy: .public)")
+            fullMessage = [headerLine, metaLine, formattedLines].joined(separator: "\n")
         } else {
-            var message = base
-            if message.count > maxLogLength {
-                message = String(message.prefix(maxLogLength)) + "… [truncated]"
-            }
-            logger.log(level: event.metadata.type.defaultOSLogType, "\(message, privacy: .public)")
+            fullMessage = [headerLine, metaLine].joined(separator: "\n")
         }
+
+        let output = fullMessage.count > maxLogLength
+            ? String(fullMessage.prefix(maxLogLength)) + "\n↳ … [truncated]"
+            : fullMessage
+
+        logger.log(level: event.metadata.type.defaultOSLogType, "\(output, privacy: .public)")
     }
 
-    private func formatBaseMessage(from event: NexusEvent, message: String) -> String {
+    private func formatHeaderLine(from event: NexusEvent, message: String) -> String {
         let m = event.metadata
-        let time = TimeFormatter.shared.shortTimeWithMillis(from: m.time)
+        let time = NexusTimeFormatter.shared.shortTimeWithMillis(from: m.time)
+        let emoji = m.type.emoji
         let level = m.type.name.uppercased()
+        return "\(time) \(emoji) \(level) - \(message)"
+    }
 
-        let app = m.bundleName
-        let version = m.appVersion
-        let thread = m.threadName
-        let file = m.fileName
-        let line = m.lineNumber
-        let function = m.functionName
-
-        return """
-        [\(time)] \(m.type.emoji) \(level): \(message)
-        \(app)@\(version) on \(thread) - \(file):\(line) \(function)
-        """
+    private func formatMetadataLine(from event: NexusEvent) -> String {
+        let m = event.metadata
+        return "\(m.bundleName)@\(m.appVersion) - \(m.fileName):\(m.lineNumber) - \(m.functionName):\(m.threadName)"
     }
 
     private func formatDataBlock(from event: NexusEvent, fittingIn limit: Int) -> [String]? {

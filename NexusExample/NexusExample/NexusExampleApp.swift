@@ -13,6 +13,7 @@ struct NexusExampleApp: App {
     init() {
         // Logging setup
         Nexus.addDestination(OSLoggerHumanReadable(showData: true), serialised: true)
+//        Nexus.addDestination(OSLoggerMachineParsable(), serialised: true)
 
         // Global user context
         let context = UserEventContext(
@@ -24,10 +25,12 @@ struct NexusExampleApp: App {
 
         Nexus.track("User viewed home screen")
 
-        Nexus.debug("Fetched 12 items from API", [
-            "endpoint": "/api/items",
-            "duration": "132ms"
-        ])
+        Task.detached {
+            Nexus.debug("Fetched 12 items from API", [
+                "endpoint": "/api/items",
+                "duration": "132ms"
+            ])
+        }
 
         Nexus.info("User enabled notifications", context)
 
@@ -43,7 +46,7 @@ struct NexusExampleApp: App {
             "error": "disk full"
         ])
 
-        Nexus.fault("Why are you force unwrapping!")
+        Nexus.fault("Why are you force unwrapping?")
     }
 
     var body: some Scene {}
