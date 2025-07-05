@@ -84,12 +84,11 @@ public enum NexusDataFormatter {
         }
     }
 
-    // Put "routing key" first, others alphabetical
     private static func customSortedKeys(for dict: [String: Any?]) -> [String] {
         var keys = Array(dict.keys)
-        if let index = keys.firstIndex(of: "routing key") {
+        if let index = keys.firstIndex(of: "nexusRoutingKey") {
             keys.remove(at: index)
-            return ["routing key"] + keys.sorted()
+            return ["nexusRoutingKey"] + keys.sorted()
         }
         return keys.sorted()
     }

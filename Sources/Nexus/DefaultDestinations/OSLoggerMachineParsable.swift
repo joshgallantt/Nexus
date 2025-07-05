@@ -52,7 +52,7 @@ public struct OSLoggerMachineParsable: NexusDestination {
         ]
 
         if let routingKey = meta.routingKey {
-            fields.append("routingKey=\(NexusDataFormatter.sanitizeString(routingKey))") // 10
+            fields.append("nexusRoutingKey=\(NexusDataFormatter.sanitizeString(routingKey))")
         }
 
         let structuredData = flattenData(from: event.data)

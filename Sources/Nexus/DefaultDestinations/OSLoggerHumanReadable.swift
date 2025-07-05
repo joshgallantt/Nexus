@@ -59,24 +59,24 @@ public struct OSLoggerHumanReadable: NexusDestination {
         if let jsonData = event.data?.json {
             if var dict = (try? JSONSerialization.jsonObject(with: jsonData)) as? [String: Any] {
                 if let routingKey = event.metadata.routingKey {
-                    dict["routing key"] = routingKey
+                    dict["nexusRoutingKey"] = routingKey
                 }
                 return NexusDataFormatter.formatLines(from: dict, limit: limit)
             }
             if let arr = (try? JSONSerialization.jsonObject(with: jsonData)) as? [Any] {
                 var root: [String: Any] = ["data": arr]
                 if let routingKey = event.metadata.routingKey {
-                    root["routing key"] = routingKey
+                    root["nexusRoutingKey"] = routingKey
                 }
                 return NexusDataFormatter.formatLines(from: root, limit: limit)
             }
         } else if var values = event.data?.values as? [String: Any] {
             if let routingKey = event.metadata.routingKey {
-                values["routing key"] = routingKey
+                values["nexusRoutingKey"] = routingKey
             }
             return NexusDataFormatter.formatLines(from: values, limit: limit)
         } else if let routingKey = event.metadata.routingKey {
-            return NexusDataFormatter.formatLines(from: ["routing key": routingKey], limit: limit)
+            return NexusDataFormatter.formatLines(from: ["nexusRoutingKey": routingKey], limit: limit)
         }
         return nil
     }

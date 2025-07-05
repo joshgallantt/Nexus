@@ -14,17 +14,10 @@ struct NexusExampleApp: App {
         // Logging setup
         Nexus.addDestination(OSLoggerHumanReadable(showData: true), serialised: true)
 
-        // Global user context
-        let context = UserEventContext(
-            userId: 123,
-            name: "Josh Gallant",
-            isPremium: true,
-            createdAt: Date()
-        )
-
+        // The following 7 logs are intentionally single line (simple message only, no data/context/task)
         trackUserLanding()
         fetchItemsFromAPI()
-        enableNotifications(context: context)
+        enableNotifications()
         verifyUserEmail()
         getAccountTier()
         attemptSavingPreferences()
@@ -33,6 +26,8 @@ struct NexusExampleApp: App {
         // JSON test payloads
         testJSONObject()
         testJSONArray()
+        testThreeDeepEncodable()
+        testKeyValuePairs()
     }
 
     var body: some Scene {}
@@ -41,40 +36,42 @@ struct NexusExampleApp: App {
 // MARK: - Sample functions generating logs
 
 private func trackUserLanding() {
-    Nexus.track("User viewed home screen", routingKey: "routing key")
+    Nexus.track("User viewed home screen")
 }
 
 private func fetchItemsFromAPI() {
-    Task.detached {
-        Nexus.debug("Fetched 12 items from API", [
-            "endpoint": "/api/items",
-            "duration": "132ms"
-        ],)
-    }
+    Nexus.debug("Fetched 12 items from API")
 }
 
-private func enableNotifications(context: UserEventContext) {
-    Nexus.info("User enabled notifications", context)
+private func enableNotifications() {
+    Nexus.info("User enabled notifications")
 }
 
 private func verifyUserEmail() {
-    Nexus.notice("User verified email", [
-        "method": "magic_link"
-    ])
+    Nexus.notice("User verified email successfully!")
 }
 
 private func getAccountTier() {
-    Nexus.warning("Unable to determine tier, falling back to free tier.")
+    Nexus.warning("Falling back to free tier.")
 }
 
 private func attemptSavingPreferences() {
-    Nexus.error("Failed to save user preferences", [
-        "error": "disk full"
-    ])
+    Nexus.error("Failed to save user preferences")
 }
 
 private func unsafeForceUnwrap() {
     Nexus.fault("Why are you force unwrapping?")
+}
+
+private func testKeyValuePairs() {
+    Nexus.debug("Key-value pairs test", routingKey: "routingkey", [
+        "count": 5,
+        "status": "ok",
+        "user": [
+            "id": 7,
+            "role": "tester"
+        ]
+    ])
 }
 
 // MARK: - Context model
@@ -127,5 +124,49 @@ private func testJSONArray() {
 
     if let data = try? JSONSerialization.data(withJSONObject: array, options: []) {
         Nexus.debug("Top-level array JSON", routingKey: "routingkey", data)
+    }
+}
+
+// MARK: - Three-Level Nested Encodable Types
+
+struct UserProfile: Encodable {
+    let email: String
+    let verified: Bool
+}
+
+struct User: Encodable {
+    let id: Int
+    let name: String
+    let roles: [String]
+    let profile: UserProfile
+}
+
+struct UserEvent: Encodable {
+    let active: Bool
+    let sessionId: String
+    let user: User
+}
+
+private func testThreeDeepEncodable() {
+    let event = UserEvent(
+        active: true,
+        sessionId: "abc123",
+        user: User(
+            id: 42,
+            name: "Alan Turing",
+            roles: ["admin", "mathematician"],
+            profile: UserProfile(
+                email: "alan@bombe.com",
+                verified: true
+            )
+        )
+    )
+    do {
+        let encoder = JSONEncoder()
+        encoder.dateEncodingStrategy = .iso8601
+        let data = try encoder.encode(event)
+        Nexus.debug("Three-level Encodable object", routingKey: "routingkey", data)
+    } catch {
+        Nexus.error("Failed to encode three-level object", ["error": error.localizedDescription])
     }
 }
