@@ -10,3 +10,5 @@ import Foundation
 public protocol NexusDestination: Sendable {
     func send(_ event: NexusEvent) async
 }
+
+
