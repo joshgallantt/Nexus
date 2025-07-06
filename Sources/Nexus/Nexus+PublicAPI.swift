@@ -8,23 +8,50 @@
 import Foundation
 
 public extension Nexus {
-    // MARK: - Public Destination Registration
-
-    /// Registers a new destination for event logging.
-    ///
-    /// Use this to attach a `NexusDestination` that will receive events emitted through the Nexus logging system.
+    /// Registers a new destination to receive events from the Nexus logging system.
     ///
     /// - Parameters:
-    ///   - dest: The `NexusDestination` to add.
-    ///   - serialised: If true, events are delivered to the destination one at a time and in the order they are sent (strict ordering, useful for destinations where event sequencing matters).
-    ///                 If false, events may be delivered out of order or in batches (higher performance, use when order does not matter or batching is preferred).
+    ///   - destination: The `NexusDestination` to add.
+    ///   - mode: The delivery mode for this destination (`.serial` by default).
+    ///     - Use `.serial` if your destination is not thread-safe or needs ordered delivery.
+    ///     - Use `.concurrent` only if your destination is fully thread-safe and does not require event ordering.
+    ///
+    /// - Discussion:
+    ///   `.serial` mode is safe for most cases and ensures events are processed one at a time, in order.
+    ///   `.concurrent` mode can dramatically increase throughput and reduce latency for destinations that are designed to handle parallelism.
+    ///
+    ///   **Choose `.concurrent` for:**
+    ///   - Analytics SDKs and remote loggers that can process events in parallel
+    ///   - Destinations that batch or asynchronously forward events
+    ///   - High-traffic pipelines where performance is a priority
+    ///
+    ///   **Avoid `.concurrent` if your destination:**
+    ///   - Writes to files or local storage without synchronization
+    ///   - Appends to shared arrays or dictionaries
+    ///   - Updates or reads global/static variables
+    ///   - Interacts with UI elements
+    ///   - Uses APIs that are not documented as thread-safe
+    ///
+    ///   Using `.concurrent` in these cases can lead to data corruption, crashes, or out-of-order results.
+    ///
+    /// - Example:
+    ///   ```swift
+    ///   // Serial delivery (safe for most loggers, default)
+    ///   Nexus.addDestination(FileLogger("logs/app.log"))
+    ///
+    ///   // Concurrent delivery (for high-throughput, thread-safe analytics)
+    ///   Nexus.addDestination(FirebaseDestination(), .concurrent)
+    ///   ```
     @inlinable
     public nonisolated static func addDestination(
-        _ dest: NexusDestination,
-        serialised: Bool = true
+        _ destination: NexusDestination,
+        _ mode: NexusDeliveryMode = .serial
     ) {
         Task(priority: .background) {
-            await NexusDestinationStore.shared.addDestination(dest, serialised: serialised)
+            await NexusDestinationRegistry.shared.addDestination(
+                destination,
+                mode: mode
+            )
         }
     }
     

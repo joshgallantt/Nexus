@@ -7,7 +7,6 @@
 
 import Foundation
 
-/// Protocol for a Nexus Log Destination (e.g., system log, remote service).
 public protocol NexusDestination: Sendable {
     func send(_ event: NexusEvent) async
 }

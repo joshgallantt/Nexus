@@ -11,10 +11,10 @@ import Foundation
 public actor Nexus {
 
     public static let shared = Nexus(
-        eventStore: NexusDestinationStore.shared
+        eventStore: NexusDestinationRegistry.shared
     )
 
-    private let eventStore: NexusDestinationStore
+    private let eventStore: NexusDestinationRegistry
     private let eventStream: AsyncStream<NexusEvent>
     private let eventContinuation: AsyncStream<NexusEvent>.Continuation
 
@@ -23,7 +23,7 @@ public actor Nexus {
     private let deviceModel: String
     private let osVersion: String
 
-    internal init(eventStore: NexusDestinationStore) {
+    internal init(eventStore: NexusDestinationRegistry) {
         self.eventStore = eventStore
         (eventStream, eventContinuation) = AsyncStream.makeStream()
 

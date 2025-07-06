@@ -72,7 +72,7 @@ import SwiftUI
 @main
 struct MyApp: App {
     init() {
-        Nexus.addDestination(OSLoggerHumanReadable())
+        Nexus.addDestination(NexusDebugLog())
     }
 
     var body: some Scene {
@@ -105,13 +105,16 @@ Nexus.fault("Unexpected nil unwrapped!", ["file": "LoginManager.swift"])
 
 **🔌 Pluggable & Scalable Destinations:** Add, remove, modify, or replace backends with zero disruption.
 
-**🧵 Thread-Safe by Design:** Fire-and-forget logging and analytics with the latest Swift Concurrency support.
+**🧵 Thread-Safe:** Destinations are safe inside an actor by default.
 
 **⚙️ Infinitely Flexible:** Filter events by metadata, `routingKey`, or event type to control delivery.
 
+**📦 Multiple Payload Options :** Send Nexus Events for key value pairs, any encodable object, or JSON.
+
+**🏎️ Fast :** All events dispatch on background threads, with the option to go concurrent.
+
 **🚫 No Dependencies:** Nexus is lightweight and vendor-agnostic — no external dependencies.
 
-**📦 Multiple Payloads:** Send Nexus Events for key value pairs, any encodable object, or JSON.
 
 Whether you're debug logging to the console in dev, sending analytics to Firebase in prod, or writing logs to disk in CI — Nexus is for you.
 
@@ -188,41 +191,55 @@ A **NexusDestination** receives events from Nexus.
 The following configuration will route events to all three destinations safely.
 
 ```swift
-Nexus.addDestination(OSLoggerHumanReadable())
-Nexus.addDestination(FirebaseDestination(), serialised: false)
-Nexus.addDestination(FileLogger("/logs/analytics.log"))
+Nexus.addDestination(NexusDebugLog, .serial)
+Nexus.addDestination(FirebaseDestination(), .concurrent)
+Nexus.addDestination(FileLogger("/logs/analytics.log"), .serial)
 
 Nexus.track("User started onboarding", attributes: ["step": "1"])
 ```
 
-## <br><br> Serialization Modes
+## <br><br> Event Delivery Mode
+Nexus supports two delivery modes for destinations: serial and concurrent.
+Choose the mode that matches your destination’s requirements for safety, ordering, and performance.
 
 ```swift
-Nexus.addDestination(FirebaseDestination(), serialised: false)
+// Thread-safe, high-throughput analytics destination
+Nexus.addDestination(FirebaseDestination(), .concurrent)
+
+// File logger (default: serial delivery)
+Nexus.addDestination(FileLogger(), .serial)
+
 ```
 
-#### <br> `serialised: true` (default)
+#### <br>  `.serial (default)`
+* Events are delivered one at a time, in the order they occur.
+* Backed by an internal `Actor` for thread safety.
+* Best for:
+    * File loggers (e.g., FileLogger, OSLogger)
+    * Console or UI logging
+    * Writing to a database or local storage
+    * Any destination that is not thread-safe or relies on event order
+    
+Use .serial if you are unsure. This is the safest and most compatible mode.
 
-* Events delivered **in order**, one at a time
-* Backed by an internal `actor`
-* Great for:
 
-  * Ordered session logs
-  * Debugging
-  * File or console logs
+#### <br> `.concurrent`
+* Events are delivered in parallel and may arrive out of order.
+* Provides higher throughput and lower latency, ideal for high-traffic scenarios.
+* No guarantee on order of delivery; events may be processed by your destination simultaneously.
 
-#### <br> `serialised: false`
+* Best for:
+    * Analytics SDKs (e.g., Firebase, Segment)
+    * High-throughput remote/network loggers
+    * Any destination that is fully thread-safe and order-independent
 
-* Events delivered **concurrently** via `Task.detached`
-* Great for:
-
-  * High-throughput analytics SDKs
-  * Background logging
-
-⚠️ Avoid setting serialisation to `false` if your destination is not thread safe. Examples include:
-* Writing to a file without locking
-* Appending to shared arrays or dictionaries
-* Depending on global/static state
+* ⚠️ Avoid `.concurrent` if your destination:
+    * Writes to files, local storage, or the UI without synchronization
+    * Appends to shared arrays, dictionaries, or other collections
+    * Relies on global or static variables
+    * Needs to guarantee event order
+    
+Using .concurrent in these situations can lead to race conditions, data corruption, or out-of-order logs.
 
 ## <br><br> Built-In Destinations
 

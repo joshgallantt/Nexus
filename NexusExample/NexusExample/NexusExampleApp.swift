@@ -14,7 +14,7 @@ struct NexusExampleApp: App {
         // Setup Logging Destination
         #if DEBUG
         let setupLogger = NexusDebugLog()
-        Nexus.addDestination(setupLogger, serialised: true)
+        Nexus.addDestination(setupLogger, .serial)
         #endif
 
         // Example Logging

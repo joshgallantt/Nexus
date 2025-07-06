@@ -6,7 +6,7 @@
 //
 
 
-actor NexusSerialActor {
+package actor NexusSerialActor {
     let destination: NexusDestination
 
     init(destination: NexusDestination) {
