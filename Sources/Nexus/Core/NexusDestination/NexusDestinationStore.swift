@@ -9,32 +9,28 @@ import Foundation
 
 // MARK: — Protocol for Testability
 
-protocol NexusDestinationStoreProtocol {
-    var destinations: [NexusDestinationStrategy] { get }
-    func addDestination(_ destination: NexusDestination, serialised: Bool)
+protocol NexusDestinationStoreProtocol: AnyObject, Sendable {
+    var destinations: [NexusDestinationStrategy] { get async }
+    func addDestination(_ destination: NexusDestination, serialised: Bool) async
 }
 
 // MARK: — Event Destination Store
 
-public final class NexusDestinationStore: @unchecked Sendable, NexusDestinationStoreProtocol {
+public actor NexusDestinationStore: NexusDestinationStoreProtocol {
     public static let shared = NexusDestinationStore()
-
-    private let queue = DispatchQueue(label: "com.nexus.destinations.queue")
+    
     private var _destinations: [NexusDestinationStrategy] = []
-
     private init() {}
 
     var destinations: [NexusDestinationStrategy] {
-        queue.sync { _destinations }
+        get { _destinations }
     }
 
     public func addDestination(_ destination: NexusDestination, serialised: Bool) {
         let wrapper: NexusDestinationStrategy = serialised
             ? .serialised(NexusSerialActor(destination: destination))
             : .unsynchronised(destination)
-
-        queue.sync {
-            _destinations.append(wrapper)
-        }
+        _destinations.append(wrapper)
     }
 }
+

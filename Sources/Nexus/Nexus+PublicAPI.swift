@@ -23,7 +23,9 @@ public extension Nexus {
         _ dest: NexusDestination,
         serialised: Bool = true
     ) {
-        NexusDestinationStore.shared.addDestination(dest, serialised: serialised)
+        Task(priority: .background) {
+            await NexusDestinationStore.shared.addDestination(dest, serialised: serialised)
+        }
     }
     
     

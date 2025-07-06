@@ -18,8 +18,10 @@ struct NexusExampleApp: App {
         #endif
 
         // Example Logging
+        Task.detached(priority: .userInitiated) {
+            trackUserLanding()
+        }
         
-        trackUserLanding()
         fetchItemsFromAPI()
         enableNotifications()
         verifyUserEmail()

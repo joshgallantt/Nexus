@@ -16,7 +16,7 @@ enum NexusDestinationStrategy {
     func send(_ event: NexusEvent) {
         switch self {
         case .serialised(let actor):
-            Task {
+            Task(priority: .background) {
                 await actor.enqueue(event)
             }
         case .unsynchronised(let destination):

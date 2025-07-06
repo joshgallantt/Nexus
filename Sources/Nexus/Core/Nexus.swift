@@ -32,7 +32,7 @@ public actor Nexus {
         self.deviceModel = NexusDeviceInfo.model
         self.osVersion = NexusDeviceInfo.osVersion
 
-        Task {
+        Task(priority: .background) {
             for await entry in eventStream {
                 await processEvent(entry)
             }
@@ -48,11 +48,11 @@ public actor Nexus {
     }
 
     private func processEvent(_ event: NexusEvent) async {
-        let wrappers = eventStore.destinations
+        let wrappers = await eventStore.destinations
 
         await withTaskGroup(of: Void.self) { group in
             for wrapper in wrappers {
-                group.addTask {
+                group.addTask(priority: .background) {
                     wrapper.send(event)
                 }
             }
