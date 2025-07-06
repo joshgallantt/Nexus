@@ -25,7 +25,9 @@ public actor Nexus {
 
     internal init(eventStore: NexusDestinationRegistry) {
         self.eventStore = eventStore
-        (eventStream, eventContinuation) = AsyncStream.makeStream()
+        (eventStream, eventContinuation) = AsyncStream.makeStream(
+            bufferingPolicy: .bufferingNewest(1000)
+        )
 
         self.bundleName = Bundle.main.object(forInfoDictionaryKey: "CFBundleName") as? String ?? "Unknown Bundle"
         self.appVersion = Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String ?? "Unknown Version"
