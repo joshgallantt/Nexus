@@ -24,7 +24,6 @@ Traditional logging and analytics setups in Swift apps are messy, inconsistent, 
 
 * ❌ Dozens of `print` or `os_log` calls scattered across the codebase
 * ❌ Analytics SDKs glued on without structure, separation, or thread-safety
-* ❌ Tedious boilerplate to support different targets, platforms, or environments
 * ❌ Difficult migrations when adding, removing, or switching logging and analytics services
 * ❌ More time is spent on how to track, than what to track.
   
@@ -101,19 +100,22 @@ Nexus.fault("Unexpected nil unwrapped!", ["file": "LoginManager.swift"])
 
 ## <br><br> Features:
 
-**🥇 Single Call Site:** Send all events from a single API.
+**🏎️ Fast:** Events are processed in parallel. If one destination slows down, it won’t block the others. Each destination handles its own events and can be configured to process events concurrently, so even within a destination, slow events won’t block faster ones. Lastly, all processing happens on background threads, ensuring your UI remains smooth and responsive.
 
-**🔌 Pluggable & Scalable Destinations:** Add, remove, modify, or replace backends with zero disruption.
+**🔌 Pluggable & Scalable Destinations:** A single set of API methods seperate you from the details. Add, remove, modify, or replace logging and tracking backends with zero disruption.
 
-**🧵 Thread-Safe:** Destinations are safe inside an actor by default.
+**🧵 Thread-Safe:** Destinations are kept safe inside an `actor` by default.
 
 **⚙️ Infinitely Flexible:** Filter events by metadata, `routingKey`, or event type to control delivery.
 
-**📦 Multiple Payload Options :** Send Nexus Events for key value pairs, any encodable object, or JSON.
+**📦 Multiple Payload Options:** Send Nexus Events for key value pairs, any encodable object, or JSON.
 
-**🏎️ Fast :** All events dispatch on background threads, with the option to go concurrent.
+**🍰 Rich:** Nexus Events generate rich contextual metadata ready for you to use.
 
-**🚫 No Dependencies:** Nexus is lightweight and vendor-agnostic — no external dependencies.
+**🚫 No Dependencies:** Nexus is lightweight and vendor-agnostic.
+
+**🍎 Cross Platform:** Nexus works wherever Swift works— on-device, on the server, and in CI.  
+
 
 
 Whether you're debug logging to the console in dev, sending analytics to Firebase in prod, or writing logs to disk in CI — Nexus is for you.
