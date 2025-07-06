@@ -58,7 +58,7 @@ import Nexus
 
 func application(_ application: UIApplication,
                  didFinishLaunchingWithOptions launchOptions: ...) -> Bool {
-    Nexus.addDestination(OSLoggerHumanReadable())
+    Nexus.addDestination(FirebaseDestination())
     return true
 }
 ```
@@ -72,7 +72,7 @@ import SwiftUI
 @main
 struct MyApp: App {
     init() {
-        Nexus.addDestination(NexusDebugLog())
+        Nexus.addDestination(FirebaseDestination())
     }
 
     var body: some Scene {
