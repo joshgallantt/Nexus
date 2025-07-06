@@ -9,7 +9,7 @@ import Foundation
 
 // MARK: — Protocol for Testability
 
-protocol NexusDestinationStoreProtocol: AnyObject, Sendable {
+protocol NexusDestinationStoreProtocol: Sendable {
     var destinations: [NexusDestinationStrategy] { get async }
     func addDestination(_ destination: NexusDestination, serialised: Bool) async
 }
@@ -27,10 +27,10 @@ public actor NexusDestinationStore: NexusDestinationStoreProtocol {
     }
 
     public func addDestination(_ destination: NexusDestination, serialised: Bool) {
-        let wrapper: NexusDestinationStrategy = serialised
+        let destinationWithStrategy: NexusDestinationStrategy = serialised
             ? .serialised(NexusSerialActor(destination: destination))
             : .unsynchronised(destination)
-        _destinations.append(wrapper)
+        _destinations.append(destinationWithStrategy)
     }
 }
 

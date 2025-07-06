@@ -48,12 +48,12 @@ public actor Nexus {
     }
 
     private func processEvent(_ event: NexusEvent) async {
-        let wrappers = await eventStore.destinations
+        let destinations = await eventStore.destinations
 
         await withTaskGroup(of: Void.self) { group in
-            for wrapper in wrappers {
+            for destination in destinations {
                 group.addTask(priority: .background) {
-                    wrapper.send(event)
+                    destination.send(event)
                 }
             }
         }
