@@ -191,7 +191,7 @@ A **NexusDestination** receives events from Nexus.
 The following configuration will route events to all three destinations safely.
 
 ```swift
-Nexus.addDestination(NexusDebugLog, .serial)
+Nexus.addDestination(NexusDebugLog(), .serial)
 Nexus.addDestination(FirebaseDestination(), .concurrent)
 Nexus.addDestination(FileLogger("/logs/analytics.log"), .serial)
 
@@ -247,8 +247,8 @@ Nexus ships with some production ready destinations out of the box so you can st
 
 | Destination                 | Description                                                           |
 | --------------------------- | --------------------------------------------------------------------- |
-| `OSLoggerHumanReadable()`   | Used in the example images above, logs to Apple’s unified logging system in a easy to read format |
-| `OSLoggerMachineParsable()` | Logs structured data suitable for ingestion and automation            |
+| `NexusDebugLog()`   | Used in the example images above, logs to Apple’s unified logging system in a easy to read format |
+| `NexusMachineParsableLog()` | Logs structured data suitable for ingestion and automation            |
 
 
 ## <br><br> Creating a Custom Destination
