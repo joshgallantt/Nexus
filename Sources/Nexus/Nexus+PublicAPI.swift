@@ -43,7 +43,7 @@ public extension Nexus {
     ///   Nexus.addDestination(FirebaseDestination(), .concurrent)
     ///   ```
     @inlinable
-    public nonisolated static func addDestination(
+    nonisolated static func addDestination(
         _ destination: NexusDestination,
         _ mode: NexusDeliveryMode = .serial
     ) {

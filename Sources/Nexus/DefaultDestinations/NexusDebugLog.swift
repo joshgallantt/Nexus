@@ -56,7 +56,7 @@ public struct NexusDebugLog: NexusDestination {
         let message = msg.isEmpty ? "<no message>" : msg
 
         let headerLine = formatHeaderLine(from: event, message: message)
-        var dataLines = formatDataBlock(from: event, fittingIn: maxLogLength - headerLine.count) ?? []
+        let dataLines = formatDataBlock(from: event, fittingIn: maxLogLength - headerLine.count) ?? []
 
         let output: String = dataLines.isEmpty
             ? headerLine
