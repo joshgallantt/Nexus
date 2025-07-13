@@ -20,20 +20,7 @@ public struct NexusDebugLog: NexusDestination {
         logOnly: [NexusEventType] = [.debug, .track, .info, .notice, .warning, .error, .fault],
         requiredRoutingKey: String? = nil,
         maxLogLength: Int = 1000,
-    ) {
-        self.logger = Logger(subsystem: Bundle.main.bundleIdentifier ?? "Unknown Bundle", category: "Nexus Debug Log")
-        self.showData = showData
-        self.logOnly = logOnly
-        self.requiredRoutingKey = requiredRoutingKey
-        self.maxLogLength = maxLogLength
-    }
-    
-    private init(
-        logger: Logger = Logger(subsystem: Bundle.main.bundleIdentifier ?? "Unknown Bundle", category: "Nexus Debug Log"),
-        showData: Bool = true,
-        logOnly: [NexusEventType] = [.debug, .track, .info, .notice, .warning, .error, .fault],
-        requiredRoutingKey: String? = nil,
-        maxLogLength: Int = 1000
+        logger: Logger = Logger(subsystem: Bundle.main.bundleIdentifier ?? "Unknown Bundle", category: "Nexus Debug Log")
     ) {
         self.logger = logger
         self.showData = showData
@@ -69,7 +56,7 @@ public struct NexusDebugLog: NexusDestination {
         logger.log(level: event.metadata.type.defaultOSLogType, "\(truncated, privacy: .public)")
     }
 
-    private func formatHeaderLine(from event: NexusEvent, message: String) -> String {
+    func formatHeaderLine(from event: NexusEvent, message: String) -> String {
         let m = event.metadata
         let time = NexusTimeFormatter.shared.shortTimeWithMillis(from: m.time)
         let emoji = m.type.emoji
@@ -79,7 +66,7 @@ public struct NexusDebugLog: NexusDestination {
         return "\(time) \(emoji) \(level) - \(location) - \(message)"
     }
 
-    private func formatDataBlock(from event: NexusEvent, fittingIn limit: Int) -> [String]? {
+    func formatDataBlock(from event: NexusEvent, fittingIn limit: Int) -> [String]? {
         guard showData else { return nil }
 
         if let jsonData = event.data?.json {

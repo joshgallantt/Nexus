@@ -415,7 +415,7 @@ public extension Nexus {
         )
     }
     
-    private static func stringify(_ dict: [String: Any]?) -> [String: String]? {
+    static func stringify(_ dict: [String: Any]?) -> [String: String]? {
         guard let dict = dict else { return nil }
         var result: [String: String] = [:]
         for (key, value) in dict {
@@ -424,3 +424,4 @@ public extension Nexus {
         return result
     }
 }
+

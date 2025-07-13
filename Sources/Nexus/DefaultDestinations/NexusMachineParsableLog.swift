@@ -27,7 +27,7 @@ public struct NexusMachineParsableLog: NexusDestination {
 
     // MARK: - Private helpers
 
-    private func formatLogOutput(for event: NexusEvent) -> String {
+    func formatLogOutput(for event: NexusEvent) -> String {
         let meta = event.metadata
 
         let emoji = meta.type.emoji
@@ -67,7 +67,7 @@ public struct NexusMachineParsableLog: NexusDestination {
         return fields.joined(separator: "|")
     }
 
-    private func flattenData(from data: NexusEventData?) -> [String: String] {
+    func flattenData(from data: NexusEventData?) -> [String: String] {
         var values: [String: String] = [:]
 
         if let kv = data?.values {
@@ -89,7 +89,7 @@ public struct NexusMachineParsableLog: NexusDestination {
         return values
     }
 
-    private func sanitizeAndTruncate(_ input: String, limit: Int) -> String {
+    func sanitizeAndTruncate(_ input: String, limit: Int) -> String {
         let truncated = input.count > limit ? String(input.prefix(limit)) + "…" : input
         return NexusDataFormatter.sanitizeString(truncated)
     }

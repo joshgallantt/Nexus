@@ -7,8 +7,8 @@
 
 import Foundation
 
-public enum NexusDataFormatter {
-    public static func formatLines(from any: Any?, limit: Int = .max) -> [String]? {
+enum NexusDataFormatter {
+    static func formatLines(from any: Any?, limit: Int = .max) -> [String]? {
         guard let any else { return nil }
 
         var lines: [String] = []
@@ -29,7 +29,7 @@ public enum NexusDataFormatter {
         return result
     }
 
-    public static func formatLines(from jsonData: Data?, limit: Int = .max) -> [String]? {
+    static func formatLines(from jsonData: Data?, limit: Int = .max) -> [String]? {
         guard let jsonData else { return nil }
 
         do {
@@ -42,7 +42,7 @@ public enum NexusDataFormatter {
 
     // MARK: - Recursive Formatting
 
-    private static func formatRecursive(
+    static func formatRecursive(
         _ value: Any,
         key: String?,
         parentsLast: [Bool],
@@ -84,7 +84,7 @@ public enum NexusDataFormatter {
         }
     }
 
-    private static func customSortedKeys(for dict: [String: Any?]) -> [String] {
+    static func customSortedKeys(for dict: [String: Any?]) -> [String] {
         var keys = Array(dict.keys)
         if let index = keys.firstIndex(of: "nexusRoutingKey") {
             keys.remove(at: index)
@@ -93,7 +93,7 @@ public enum NexusDataFormatter {
         return keys.sorted()
     }
 
-    private static func drawPrefix(parentsLast: [Bool], isLast: Bool) -> String {
+    static func drawPrefix(parentsLast: [Bool], isLast: Bool) -> String {
         var prefix = ""
         for wasLast in parentsLast {
             prefix += wasLast ? "    " : "│   "
@@ -102,7 +102,7 @@ public enum NexusDataFormatter {
         return prefix
     }
 
-    private static func stringify(_ value: Any?) -> String {
+    static func stringify(_ value: Any?) -> String {
         switch value {
         case let number as NSNumber:
             if CFGetTypeID(number) == CFBooleanGetTypeID() {
