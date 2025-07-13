@@ -1,24 +1,22 @@
-<p align="center">
-  <img src="NexusExample/images/nexus.png" alt="App Screenshot" width="300" />
-</p>
+<div align="center">
 
-<p align="center">
+<img src="NexusExample/images/nexus.png" alt="App Screenshot" width="300" />
+
 [![Platforms](https://img.shields.io/badge/Platforms-iOS%2016%2B%20%7C%20iPadOS%2016%2B%20%7C%20macOS%2013%2B%20%7C%20watchOS%209%2B%20%7C%20tvOS%2016%2B%20%7C%20visionOS%201%2B-blue.svg?style=flat)](#requirements)
 <br>
 
 [![Swift](https://img.shields.io/badge/Swift-5.9%2B-orange.svg?style=flat)](https://swift.org)
 [![SPM ready](https://img.shields.io/badge/SPM-ready-brightgreen.svg?style=flat-square)](https://swift.org/package-manager/)
-<!--[![Coverage](https://img.shields.io/badge/Coverage-99.4%25-brightgreen.svg?style=flat)](#)-->
+[![Coverage](https://img.shields.io/badge/Coverage-99.4%25-brightgreen.svg?style=flat)](#)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](./LICENSE)
-</p>
-<p align="center">
-  <em>A modern, concurrency-safe, fire-and-forget logging and tracking interface for all your Swift applications. Flexible input. Flexible output. Gorgeous developer experience.</em>
-</p>
 
+<br>
 
-<p align="center">
 <img src="NexusExample/images/example-metadata.png" alt="App Screenshot" width="10000"/>
-</p>
+
+<em>A modern, concurrency-safe, fire-and-forget logging and tracking interface for all your Swift applications. Flexible input. Flexible output. Gorgeous developer experience.</em>
+
+</div>
 
 ## <br><br> What is Nexus?
 
