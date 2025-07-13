@@ -7,45 +7,45 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		143A025F2E23BC9F00978EB0 /* Nexus in Frameworks */ = {isa = PBXBuildFile; productRef = 143A025E2E23BC9F00978EB0 /* Nexus */; };
+		143A02792E23BE8F00978EB0 /* Nexus in Frameworks */ = {isa = PBXBuildFile; productRef = 143A02782E23BE8F00978EB0 /* Nexus */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
-		143A024F2E23BC7800978EB0 /* NexusExampleApp.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = NexusExampleApp.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		143A02692E23BE7700978EB0 /* NexusExample.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = NexusExample.app; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
-		143A02512E23BC7800978EB0 /* NexusExampleApp */ = {
+		143A026B2E23BE7700978EB0 /* NexusExample */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
-			path = NexusExampleApp;
+			path = NexusExample;
 			sourceTree = "<group>";
 		};
 /* End PBXFileSystemSynchronizedRootGroup section */
 
 /* Begin PBXFrameworksBuildPhase section */
-		143A024C2E23BC7800978EB0 /* Frameworks */ = {
+		143A02662E23BE7700978EB0 /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				143A025F2E23BC9F00978EB0 /* Nexus in Frameworks */,
+				143A02792E23BE8F00978EB0 /* Nexus in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
-		143A02462E23BC7800978EB0 = {
+		143A02602E23BE7700978EB0 = {
 			isa = PBXGroup;
 			children = (
-				143A02512E23BC7800978EB0 /* NexusExampleApp */,
-				143A02502E23BC7800978EB0 /* Products */,
+				143A026B2E23BE7700978EB0 /* NexusExample */,
+				143A026A2E23BE7700978EB0 /* Products */,
 			);
 			sourceTree = "<group>";
 		};
-		143A02502E23BC7800978EB0 /* Products */ = {
+		143A026A2E23BE7700978EB0 /* Products */ = {
 			isa = PBXGroup;
 			children = (
-				143A024F2E23BC7800978EB0 /* NexusExampleApp.app */,
+				143A02692E23BE7700978EB0 /* NexusExample.app */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -53,68 +53,68 @@
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
-		143A024E2E23BC7800978EB0 /* NexusExampleApp */ = {
+		143A02682E23BE7700978EB0 /* NexusExample */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = 143A025A2E23BC7900978EB0 /* Build configuration list for PBXNativeTarget "NexusExampleApp" */;
+			buildConfigurationList = 143A02742E23BE7800978EB0 /* Build configuration list for PBXNativeTarget "NexusExample" */;
 			buildPhases = (
-				143A024B2E23BC7800978EB0 /* Sources */,
-				143A024C2E23BC7800978EB0 /* Frameworks */,
-				143A024D2E23BC7800978EB0 /* Resources */,
+				143A02652E23BE7700978EB0 /* Sources */,
+				143A02662E23BE7700978EB0 /* Frameworks */,
+				143A02672E23BE7700978EB0 /* Resources */,
 			);
 			buildRules = (
 			);
 			dependencies = (
 			);
 			fileSystemSynchronizedGroups = (
-				143A02512E23BC7800978EB0 /* NexusExampleApp */,
+				143A026B2E23BE7700978EB0 /* NexusExample */,
 			);
-			name = NexusExampleApp;
+			name = NexusExample;
 			packageProductDependencies = (
-				143A025E2E23BC9F00978EB0 /* Nexus */,
+				143A02782E23BE8F00978EB0 /* Nexus */,
 			);
-			productName = NexusExampleApp;
-			productReference = 143A024F2E23BC7800978EB0 /* NexusExampleApp.app */;
+			productName = NexusExample;
+			productReference = 143A02692E23BE7700978EB0 /* NexusExample.app */;
 			productType = "com.apple.product-type.application";
 		};
 /* End PBXNativeTarget section */
 
 /* Begin PBXProject section */
-		143A02472E23BC7800978EB0 /* Project object */ = {
+		143A02612E23BE7700978EB0 /* Project object */ = {
 			isa = PBXProject;
 			attributes = {
 				BuildIndependentTargetsInParallel = 1;
 				LastSwiftUpdateCheck = 2600;
 				LastUpgradeCheck = 2600;
 				TargetAttributes = {
-					143A024E2E23BC7800978EB0 = {
+					143A02682E23BE7700978EB0 = {
 						CreatedOnToolsVersion = 26.0;
 					};
 				};
 			};
-			buildConfigurationList = 143A024A2E23BC7800978EB0 /* Build configuration list for PBXProject "NexusExampleApp" */;
+			buildConfigurationList = 143A02642E23BE7700978EB0 /* Build configuration list for PBXProject "NexusExample" */;
 			developmentRegion = en;
 			hasScannedForEncodings = 0;
 			knownRegions = (
 				en,
 				Base,
 			);
-			mainGroup = 143A02462E23BC7800978EB0;
+			mainGroup = 143A02602E23BE7700978EB0;
 			minimizedProjectReferenceProxies = 1;
 			packageReferences = (
-				143A025D2E23BC9F00978EB0 /* XCLocalSwiftPackageReference "../../Nexus" */,
+				143A02772E23BE8F00978EB0 /* XCLocalSwiftPackageReference "../../Nexus" */,
 			);
 			preferredProjectObjectVersion = 77;
-			productRefGroup = 143A02502E23BC7800978EB0 /* Products */;
+			productRefGroup = 143A026A2E23BE7700978EB0 /* Products */;
 			projectDirPath = "";
 			projectRoot = "";
 			targets = (
-				143A024E2E23BC7800978EB0 /* NexusExampleApp */,
+				143A02682E23BE7700978EB0 /* NexusExample */,
 			);
 		};
 /* End PBXProject section */
 
 /* Begin PBXResourcesBuildPhase section */
-		143A024D2E23BC7800978EB0 /* Resources */ = {
+		143A02672E23BE7700978EB0 /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -124,7 +124,7 @@
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
-		143A024B2E23BC7800978EB0 /* Sources */ = {
+		143A02652E23BE7700978EB0 /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -134,7 +134,7 @@
 /* End PBXSourcesBuildPhase section */
 
 /* Begin XCBuildConfiguration section */
-		143A02582E23BC7900978EB0 /* Debug */ = {
+		143A02722E23BE7800978EB0 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
@@ -195,7 +195,7 @@
 			};
 			name = Debug;
 		};
-		143A02592E23BC7900978EB0 /* Release */ = {
+		143A02732E23BE7800978EB0 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
@@ -248,7 +248,7 @@
 			};
 			name = Release;
 		};
-		143A025B2E23BC7900978EB0 /* Debug */ = {
+		143A02752E23BE7800978EB0 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
@@ -274,7 +274,7 @@
 				"LD_RUNPATH_SEARCH_PATHS[sdk=macosx*]" = "@executable_path/../Frameworks";
 				MACOSX_DEPLOYMENT_TARGET = 26.0;
 				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = "Josh-Gallant.NexusExampleApp";
+				PRODUCT_BUNDLE_IDENTIFIER = "Josh-Gallant.NexusExample";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				REGISTER_APP_GROUPS = YES;
 				SDKROOT = auto;
@@ -289,7 +289,7 @@
 			};
 			name = Debug;
 		};
-		143A025C2E23BC7900978EB0 /* Release */ = {
+		143A02762E23BE7800978EB0 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
@@ -315,7 +315,7 @@
 				"LD_RUNPATH_SEARCH_PATHS[sdk=macosx*]" = "@executable_path/../Frameworks";
 				MACOSX_DEPLOYMENT_TARGET = 26.0;
 				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = "Josh-Gallant.NexusExampleApp";
+				PRODUCT_BUNDLE_IDENTIFIER = "Josh-Gallant.NexusExample";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				REGISTER_APP_GROUPS = YES;
 				SDKROOT = auto;
@@ -333,20 +333,20 @@
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
-		143A024A2E23BC7800978EB0 /* Build configuration list for PBXProject "NexusExampleApp" */ = {
+		143A02642E23BE7700978EB0 /* Build configuration list for PBXProject "NexusExample" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
-				143A02582E23BC7900978EB0 /* Debug */,
-				143A02592E23BC7900978EB0 /* Release */,
+				143A02722E23BE7800978EB0 /* Debug */,
+				143A02732E23BE7800978EB0 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		143A025A2E23BC7900978EB0 /* Build configuration list for PBXNativeTarget "NexusExampleApp" */ = {
+		143A02742E23BE7800978EB0 /* Build configuration list for PBXNativeTarget "NexusExample" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
-				143A025B2E23BC7900978EB0 /* Debug */,
-				143A025C2E23BC7900978EB0 /* Release */,
+				143A02752E23BE7800978EB0 /* Debug */,
+				143A02762E23BE7800978EB0 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
@@ -354,18 +354,18 @@
 /* End XCConfigurationList section */
 
 /* Begin XCLocalSwiftPackageReference section */
-		143A025D2E23BC9F00978EB0 /* XCLocalSwiftPackageReference "../../Nexus" */ = {
+		143A02772E23BE8F00978EB0 /* XCLocalSwiftPackageReference "../../Nexus" */ = {
 			isa = XCLocalSwiftPackageReference;
 			relativePath = ../../Nexus;
 		};
 /* End XCLocalSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
-		143A025E2E23BC9F00978EB0 /* Nexus */ = {
+		143A02782E23BE8F00978EB0 /* Nexus */ = {
 			isa = XCSwiftPackageProductDependency;
 			productName = Nexus;
 		};
 /* End XCSwiftPackageProductDependency section */
 	};
-	rootObject = 143A02472E23BC7800978EB0 /* Project object */;
+	rootObject = 143A02612E23BE7700978EB0 /* Project object */;
 }
