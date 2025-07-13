@@ -42,7 +42,6 @@ public extension Nexus {
     ///   // Concurrent delivery (for high-throughput, thread-safe analytics)
     ///   Nexus.addDestination(FirebaseDestination(), .concurrent)
     ///   ```
-    @inlinable
     nonisolated static func addDestination(
         _ destination: NexusDestination,
         _ mode: NexusDeliveryMode = .serial
@@ -55,6 +54,14 @@ public extension Nexus {
         }
     }
     
+    /// Removes all registered destinations from the Nexus logging system.
+    ///
+    /// - Note: Mostly to enable your own test suites. After calling this, no log events will be delivered until new destinations are added.
+    nonisolated static func removeAllDestinations() {
+        Task(priority: .background) {
+            await NexusDestinationRegistry.shared.removeAllDestinations()
+        }
+    }
     
     // MARK: - DEBUG
     

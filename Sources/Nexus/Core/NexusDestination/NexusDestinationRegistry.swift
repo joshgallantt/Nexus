@@ -10,10 +10,12 @@ import Foundation
 protocol NexusDestinationRegistryProtocol: Sendable {
     var destinations: [NexusDestinationDeliveryMode] { get async }
     func addDestination(_ destination: NexusDestination, mode: NexusDeliveryMode) async
+    func removeAllDestinations() async
 }
 
-public actor NexusDestinationRegistry: NexusDestinationRegistryProtocol {
-    public static let shared = NexusDestinationRegistry()
+actor NexusDestinationRegistry: NexusDestinationRegistryProtocol {
+    
+    static let shared = NexusDestinationRegistry()
     
     private var _destinations: [NexusDestinationDeliveryMode] = []
     private init() {}
@@ -22,7 +24,7 @@ public actor NexusDestinationRegistry: NexusDestinationRegistryProtocol {
         get { _destinations }
     }
 
-    public func addDestination(_ destination: NexusDestination, mode: NexusDeliveryMode) {
+    func addDestination(_ destination: NexusDestination, mode: NexusDeliveryMode) {
         let delivery: NexusDestinationDeliveryMode
         switch mode {
         case .serial:
@@ -31,6 +33,10 @@ public actor NexusDestinationRegistry: NexusDestinationRegistryProtocol {
             delivery = .concurrent(destination)
         }
         _destinations.append(delivery)
+    }
+
+    func removeAllDestinations() {
+        _destinations.removeAll()
     }
 }
 

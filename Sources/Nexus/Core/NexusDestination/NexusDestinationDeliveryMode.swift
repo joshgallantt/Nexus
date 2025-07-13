@@ -27,7 +27,7 @@ public enum NexusDeliveryMode: Sendable {
 }
 
 
-package enum NexusDestinationDeliveryMode {
+enum NexusDestinationDeliveryMode {
     case serial(NexusSerialActor)
     case concurrent(NexusDestination)
 
