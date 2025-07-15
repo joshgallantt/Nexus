@@ -314,21 +314,81 @@ guard routingKey == "firebase" else { return }
 
 Alternatively, NexusDestinations can also filter or do logic based on any other data as you see fit.
 
-## <br> Feature Comparison
+## <br><br> Testing Nexus
 
-| Capability                             | Nexus | OSLog | Firebase | DIY     |
-| -------------------------------------- | ----- | ----- | -------- | ------- |
-| Multi-destination routing              | ✅     | ❌     | ❌        | 🔧      |
-| Custom backend integration             | ✅     | ❌     | ❌        | ⚠️      |
-| Thread-safe delivery (actor-based)     | ✅     | ❌     | ❌        | ❌       |
-| Handles logs *and* analytics           | ✅     | ❌     | ✅        | ⚠️      |
-| Works across iOS, macOS, watchOS, tvOS | ✅     | ✅     | ✅        | Depends |
-| Fire-and-forget API                    | ✅     | ❌     | ⚠️        | ❌       |
-| Destination filtering                  | ✅     | ❌     | ❌        | ❌       |
+Nexus is designed for testability. Even though logging is routed through a singleton, you can always achieve code coverage and verify logging in your tests by swapping in a mock destination and clearing out real ones.
+
+### <br> How to Test: Example
+
+1. **Create a mock destination (this one is included)**
+
+```swift
+final class MockNexusDestination: NexusDestination {
+    private(set) var events: [NexusEvent] = []
+    var eventReceived: (() -> Void)?
+
+    func send(_ event: NexusEvent) async {
+        events.append(event)
+        eventReceived?()
+    }
+
+    func clearEvents() {
+        events.removeAll()
+    }
+}
+```
+
+2. **Set up and use expectations in your test**
+
+```swift
+import XCTest
+import Nexus
+
+final class MyViewModel {
+    func doSomething() {
+        Nexus.info("did something important")
+    }
+}
+
+final class MyViewModelTests: XCTestCase {
+    var mock: MockNexusDestination!
+
+    override func setUp() async throws {
+        await Nexus.removeAllDestinations()
+        mock = MockNexusDestination()
+        Nexus.addDestination(mock)
+    }
+
+    func test_givenMockDestination_whenDoSomething_thenInfoEventSent() async throws {
+        // Given
+        let viewModel = MyViewModel()
+        let expectation = XCTestExpectation(description: "Event received")
+
+        mock.eventReceived = {
+            expectation.fulfill()
+        }
+
+        // When
+        viewModel.doSomething()
+
+        // Then
+        await fulfillment(of: [expectation], timeout: 1.0)
+        XCTAssertEqual(mock.events.count, 1)
+        XCTAssertEqual(mock.events.first?.message, "did something important")
+        XCTAssertEqual(mock.events.first?.metadata.type, .info)
+    }
+}
+```
+
+> **Note:**
+> By using an `XCTestExpectation` and a callback in your mock, you guarantee your test waits until the log event is actually received, making your tests deterministic and safe on any machine or CI runner.
+
+### <br> Resetting State
+
+Don't forget to clear destinations in your test’s `setUp` or `tearDown` to avoid interference between tests.
 
 ## <br><br> Documentation
 
-* Full API reference: *Coming soon*
 * Example app: [`NexusExampleApp.swift`](./NexusExampleApp.swift)
 
 ## <br> Contributing
