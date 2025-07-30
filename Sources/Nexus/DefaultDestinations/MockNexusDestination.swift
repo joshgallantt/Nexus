@@ -6,7 +6,7 @@
 //
 
 
-final class MockNexusDestination: NexusDestination {
+actor MockNexusDestination: NexusDestination {
     private(set) var events: [NexusEvent] = []
     
     func send(_ event: NexusEvent) async {
